@@ -28,8 +28,9 @@ export default function ExtraServices() {
                 {service.description}
               </p>
 
-              <div className="mt-8 text-3xl font-bold text-brand-blue">
-                {service.price}
+              <div className="mt-8 text-brand-blue font-semibold hover:underline">
+                {/* {service.price} */}
+                Request Pricing →
               </div>
             </div>
           ))}

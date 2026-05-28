@@ -4,93 +4,224 @@ import { motion } from "framer-motion";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden pt-40 pb-28">
+    <section className="relative overflow-hidden pt-32 pb-24 lg:pt-40 lg:pb-32">
       {/* BACKGROUND */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-blue/10 rounded-full blur-3xl" />
+        {/* BLUE GLOW */}
+        <div className="absolute top-0 left-0 h-[420px] w-[420px] rounded-full bg-brand-blue/10 blur-3xl md:h-[550px] md:w-[550px]" />
 
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-brand-orange/10 rounded-full blur-3xl" />
+        {/* ORANGE GLOW */}
+        <div className="absolute bottom-0 right-0 h-[320px] w-[320px] rounded-full bg-brand-orange/10 blur-3xl md:h-[450px] md:w-[450px]" />
+
+        {/* GRID */}
+        <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:70px_70px]" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
+      {/* CONTENT */}
+      <div className="relative mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2 lg:gap-24">
         {/* LEFT */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="relative"
         >
-          <p className="uppercase tracking-[0.3em] text-sm text-brand-blue font-semibold mb-6">
-            Keeping Learners Learning
-          </p>
+          {/* EYEBROW */}
+          <div className="inline-flex items-center rounded-full border border-brand-blue/10 bg-brand-blue/[0.04] px-5 py-2.5 backdrop-blur-xl">
+            <div className="mr-3 h-2 w-2 rounded-full bg-brand-orange animate-pulse" />
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight text-brand-black">
-            Helping Schools
-            <span className="text-brand-blue"> Grow, Lead </span>& Never Look
-            Back.
-          </h1>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-brand-blue">
+              Keeping Learners Learning
+            </p>
+          </div>
 
-          <p className="mt-8 text-lg text-black/60 leading-8 max-w-xl">
-            Modern educational systems, staff development, branding, and
-            academic support designed for schools that want sustainable growth.
-          </p>
+          {/* HEADING */}
+          <div className="mt-8">
+            <h1 className="max-w-4xl text-5xl font-bold leading-[1.02] tracking-[-0.05em] text-brand-black sm:text-6xl lg:text-7xl">
+              The complete system your school needs to{" "}
+              <span className="text-brand-blue italic">grow, lead,</span> and
+              never look back.
+            </h1>
+          </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            {/* Primary CTA */}
-            <button className="relative inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-brand-blue bg-white shadow-sm border border-black/5 overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-95">
-              Explore Services
-              {/* subtle glow */}
-              <span className="absolute inset-0 bg-brand-blue/5 opacity-0 hover:opacity-100 transition-opacity duration-300" />
-            </button>
+          {/* ACCENT */}
+          <div className="mt-8 flex items-center gap-4">
+            <div className="h-[3px] w-24 rounded-full bg-brand-orange" />
 
-            {/* Secondary CTA (Bookstore) */}
+            <div className="h-[3px] w-10 rounded-full bg-brand-blue/20" />
+          </div>
+
+          {/* DESCRIPTION */}
+          <div className="mt-10 space-y-5">
+            <p className="max-w-2xl text-[17px] leading-9 text-black/60">
+              Running a school is one of the hardest jobs in the world.
+              You&apos;re managing staff who need training, parents who want
+              assurance, pupils who need consistent engagement — and a school
+              brand that needs to tell its story.
+            </p>
+
+            <p className="max-w-2xl text-[17px] leading-9 text-black/70">
+              <span className="font-semibold text-brand-black">
+                Lerna Educational Hub
+              </span>{" "}
+              was built to help schools operate with structure, visibility,
+              consistency, and confidence.
+            </p>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-12">
             <a
-              href="https://bookstore.lerna.education"
+              href="https://lernabookstore.bumpa.shop/"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex items-center justify-center px-8 py-4 rounded-full font-medium text-white bg-brand-blue shadow-md overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+              className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-brand-blue px-8 py-4 text-[15px] font-semibold text-white shadow-[0_10px_40px_rgba(59,113,232,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(59,113,232,0.32)]"
             >
-              <span className="relative z-10 flex items-center gap-2">
-                Visit our Bookstore
-              </span>
+              {/* Shine */}
+              <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-white/0 via-white/20 to-white/0 transition-transform duration-1000 group-hover:translate-x-[120%]" />
 
-              {/* hover sheen effect */}
-              <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              <span className="relative z-10 flex items-center gap-3">
+                Visit Our Bookstore
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </span>
             </a>
+          </div>
+
+          {/* PAIN POINTS */}
+          <div className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {[
+              "My teachers are doing their best but lesson delivery is inconsistent.",
+              "Nobody knows we exist — our social media is a ghost town.",
+              "When a teacher calls in sick, the whole day collapses.",
+              "Parents don't really understand what we do for their children.",
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="group relative overflow-hidden rounded-3xl border border-black/5 bg-white/70 p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-brand-blue/10 hover:shadow-xl"
+              >
+                {/* Hover Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/[0.03] to-brand-orange/[0.03] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                <div className="relative z-10">
+                  <p className="text-[15px] italic leading-7 text-black/60">
+                    &quot;{item}&quot;
+                  </p>
+
+                  <div className="mt-5 flex items-center gap-3">
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-orange/10">
+                      <div className="h-2 w-2 rounded-full bg-brand-orange" />
+                    </div>
+
+                    <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-orange">
+                      We fix that
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
 
         {/* RIGHT */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative"
+          transition={{ duration: 0.7 }}
+          className="relative mx-auto w-full max-w-xl lg:max-w-none"
         >
-          <div className="bg-white border border-black/5 rounded-[32px] p-8 shadow-2xl">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-brand-blue text-white rounded-3xl p-6">
-                <p className="text-sm opacity-80">Schools Supported</p>
+          {/* SOFT GLOW */}
+          <div className="absolute inset-0 rounded-[40px] bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-orange/10 blur-2xl" />
 
-                <h3 className="text-4xl font-bold mt-4">120+</h3>
-              </div>
+          {/* CARD */}
+          <div className="relative overflow-hidden rounded-[36px] border border-white/40 bg-white/75 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)] backdrop-blur-2xl sm:p-8">
+            {/* Decorative Glow */}
+            <div className="absolute top-0 left-0 h-40 w-40 rounded-full bg-brand-blue/10 blur-3xl" />
 
-              <div className="bg-brand-orange text-white rounded-3xl p-6">
-                <p className="text-sm opacity-80">Teachers Trained</p>
-
-                <h3 className="text-4xl font-bold mt-4">500+</h3>
-              </div>
-
-              <div className="col-span-2 border border-black/5 rounded-3xl p-8">
-                <p className="text-black/50 text-sm mb-4">
-                  Academic Excellence
+            <div className="relative grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
+              {/* CARD 1 */}
+              <div className="overflow-hidden rounded-3xl bg-brand-blue p-6 text-white shadow-lg">
+                <p className="text-sm font-medium text-white/80">
+                  Schools Supported
                 </p>
 
-                <div className="w-full h-4 bg-black/5 rounded-full overflow-hidden">
-                  <div className="w-[85%] h-full bg-brand-blue rounded-full" />
+                <h3 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
+                  120+
+                </h3>
+
+                <div className="mt-6 h-1.5 w-16 rounded-full bg-white/30" />
+              </div>
+
+              {/* CARD 2 */}
+              <div className="overflow-hidden rounded-3xl bg-brand-orange p-6 text-white shadow-lg">
+                <p className="text-sm font-medium text-white/80">
+                  Teachers Trained
+                </p>
+
+                <h3 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
+                  500+
+                </h3>
+
+                <div className="mt-6 h-1.5 w-16 rounded-full bg-white/30" />
+              </div>
+
+              {/* BOTTOM PANEL */}
+              <div className="col-span-1 rounded-3xl border border-black/5 bg-white/80 p-6 backdrop-blur-xl sm:col-span-2 sm:p-8">
+                {/* HEADER */}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-black/50">
+                    Academic Excellence
+                  </p>
+
+                  <p className="text-sm font-semibold text-brand-blue">85%</p>
                 </div>
 
-                <p className="mt-4 text-black/60 leading-7">
+                {/* PROGRESS */}
+                <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-black/5">
+                  <div className="h-full w-[85%] rounded-full bg-brand-blue" />
+                </div>
+
+                {/* DESCRIPTION */}
+                <p className="mt-6 text-[15px] leading-8 text-black/60 sm:text-base">
                   Structured systems that improve school operations, teaching
-                  consistency, and parent confidence.
+                  consistency, staff development, and parent confidence.
                 </p>
+
+                {/* MINI STATS */}
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  <div className="rounded-2xl bg-black/[0.03] p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-black/40">
+                      Growth
+                    </p>
+
+                    <h4 className="mt-2 text-2xl font-bold text-brand-black">
+                      +240%
+                    </h4>
+                  </div>
+
+                  <div className="rounded-2xl bg-black/[0.03] p-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-black/40">
+                      Retention
+                    </p>
+
+                    <h4 className="mt-2 text-2xl font-bold text-brand-black">
+                      96%
+                    </h4>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
