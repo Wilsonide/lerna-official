@@ -28,7 +28,7 @@ export default function Services() {
               title={service.title}
               description={service.description}
               price={service.price}
-              accent={service.accent}
+              accent={"" as "blue" | "orange" | "dark"}
             />
           ))}
         </div>
