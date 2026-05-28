@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -20,16 +21,30 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex flex-col">
-          <span className="font-bold text-2xl tracking-wide text-brand-black">
-            LERNA
-          </span>
+        <Link href="/" className="flex items-center gap-3">
+          {/* Logo Image */}
+          <div className="flex items-center justify-center w-14 h-14 shrink-0">
+            <Image
+              src="/logo.png"
+              alt="Lerna Logo"
+              width={76}
+              height={76}
+              className="object-contain"
+              priority
+            />
+          </div>
 
-          <span className="text-xs tracking-[0.3em] text-black/50 uppercase">
-            Educational Hub
-          </span>
+          {/* Brand Text */}
+          <div className="flex flex-col justify-center leading-none">
+            <span className="font-bold text-2xl tracking-wide text-brand-black">
+              LERNA
+            </span>
+
+            <span className="mt-1 text-[10px] tracking-[0.28em] text-black/50 uppercase">
+              Educational Hub
+            </span>
+          </div>
         </Link>
-
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
           <Link href="/" className={linkClass("/")}>
@@ -51,7 +66,7 @@ export default function Navbar() {
           rel="noopener noreferrer"
           className="hidden md:flex bg-green-500 text-white px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition"
         >
-          WhatsApp Us
+          Contact Us
         </a>
 
         {/* Mobile Button */}

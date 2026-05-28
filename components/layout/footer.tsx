@@ -24,7 +24,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             className="mt-8 inline-flex bg-brand-orange px-8 py-4 rounded-full font-medium hover:opacity-90 transition"
           >
-            Chat on WhatsApp
+            Contact Us
           </a>
         </div>
       </div>

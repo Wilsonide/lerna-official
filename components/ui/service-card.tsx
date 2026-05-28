@@ -28,7 +28,7 @@ export default function ServiceCard({
       <p className="mt-5 text-black/60 leading-8">{description}</p>
 
       <button className="mt-8 text-brand-blue font-semibold hover:underline">
-        Request pricing →
+        learn more →
       </button>
     </div>
   );

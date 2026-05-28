@@ -72,7 +72,7 @@ export default function Hero() {
           {/* CTA */}
           <div className="mt-12">
             <a
-              href="https://lernabookstore.bumpa.shop/"
+              href="/pricing"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-brand-blue px-8 py-4 text-[15px] font-semibold text-white shadow-[0_10px_40px_rgba(59,113,232,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(59,113,232,0.32)]"
@@ -81,7 +81,7 @@ export default function Hero() {
               <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-white/0 via-white/20 to-white/0 transition-transform duration-1000 group-hover:translate-x-[120%]" />
 
               <span className="relative z-10 flex items-center gap-3">
-                Visit Our Bookstore
+                Get Started
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"

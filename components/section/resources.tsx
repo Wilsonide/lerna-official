@@ -31,6 +31,18 @@ export default function Resources() {
             </div>
           ))}
         </div>
+
+        {/* CTA BUTTON */}
+        <div className="mt-14 flex justify-center">
+          <a
+            href="https://lernabookshop.bumpa.shop/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-brand-blue text-white font-semibold hover:bg-brand-blue/90 transition"
+          >
+            Visit Our Bookstore
+          </a>
+        </div>
       </div>
     </section>
   );
