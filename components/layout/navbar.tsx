@@ -11,82 +11,77 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const linkClass = (path: string) =>
-    `text-sm transition ${
-      pathname === path
-        ? "text-brand-blue font-medium"
-        : "text-black/70 hover:text-brand-blue"
+    `text-sm font-medium transition ${
+      pathname === path ? "text-white" : "text-white/70 hover:text-white"
     }`;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-xl">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-brand-orange border-b border-white/10 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
+        {/* LOGO */}
         <Link href="/" className="flex items-center gap-3">
-          {/* Logo Image */}
-          <div className="flex items-center justify-center w-14 h-14 shrink-0">
+          <div className="w-12 h-12 flex items-center justify-center shrink-0">
             <Image
               src="/logo.png"
               alt="Lerna Logo"
-              width={76}
-              height={76}
+              width={52}
+              height={52}
               className="object-contain"
               priority
             />
           </div>
 
-          {/* Brand Text */}
-          <div className="flex flex-col justify-center leading-none">
-            <span className="font-bold text-2xl tracking-wide text-brand-black">
+          <div className="flex flex-col leading-none">
+            <span className="font-bold text-xl tracking-wide text-white">
               LERNA
             </span>
-
-            <span className="mt-1 text-[10px] tracking-[0.28em] text-black/50 uppercase">
+            <span className="text-[10px] tracking-[0.25em] text-white/60 uppercase mt-1">
               Educational Hub
             </span>
           </div>
         </Link>
-        {/* Desktop Nav */}
+
+        {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center gap-10">
           <Link href="/" className={linkClass("/")}>
             Home
           </Link>
+
           <Link href="/pricing" className={linkClass("/pricing")}>
             Packages
           </Link>
 
-          <Link href="#contact" className={linkClass("#contact")}>
-            Contact Us
+          <Link href="/offers" className={linkClass("/offers")}>
+            Services
+          </Link>
+          <Link href="/about" className={linkClass("/about")}>
+            About Us
+          </Link>
+          <Link href="/blogs" className={linkClass("/blogs")}>
+            blogs
           </Link>
         </nav>
 
-        {/* WhatsApp */}
+        {/* CTA */}
         <a
           href="https://wa.me/2348068698329"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden md:flex bg-green-500 text-white px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition"
+          className="hidden md:inline-flex items-center justify-center px-6 py-3 rounded-full bg-white text-brand-orange text-sm font-semibold hover:bg-white/90 transition shadow-sm"
         >
-          Contact Us
+          Book Consultation
         </a>
 
-        {/* Mobile Button */}
-        <button className="md:hidden" onClick={() => setOpen(!open)}>
+        {/* MOBILE BUTTON */}
+        <button className="md:hidden text-white" onClick={() => setOpen(!open)}>
           {open ? <X /> : <Menu />}
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       {open && (
-        <div className="md:hidden border-t border-black/5 bg-white">
+        <div className="md:hidden border-t border-white/10 bg-brand-orange">
           <div className="px-6 py-6 flex flex-col gap-6">
-            <Link
-              href="/pricing"
-              onClick={() => setOpen(false)}
-              className={linkClass("/pricing")}
-            >
-              Packages
-            </Link>
-
             <Link
               href="/"
               onClick={() => setOpen(false)}
@@ -96,20 +91,35 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="#contact"
+              href="/pricing"
               onClick={() => setOpen(false)}
-              className={linkClass("#contact")}
+              className={linkClass("/pricing")}
             >
-              Contact Us
+              Packages
+            </Link>
+
+            <Link
+              href="/offers"
+              onClick={() => setOpen(false)}
+              className={linkClass("/offers")}
+            >
+              Services
+            </Link>
+
+            <Link href="/about" className={linkClass("/about")}>
+              About Us
+            </Link>
+            <Link href="/about" className={linkClass("/blogs")}>
+              blogs
             </Link>
 
             <a
               href="https://wa.me/2348068698329"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-green-500 text-white px-6 py-3 rounded-full text-sm font-medium text-center hover:opacity-90 transition"
+              className="bg-white text-brand-orange px-6 py-3 rounded-full text-sm font-semibold text-center hover:opacity-90 transition"
             >
-              WhatsApp Us
+              Book Consultation
             </a>
           </div>
         </div>
