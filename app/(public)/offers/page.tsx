@@ -33,148 +33,157 @@ export default function OffersPage() {
       <section className="py-28">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl md:text-5xl font-bold mb-16">
-            Core Services
+            Core Solutions
           </h2>
 
           <div className="space-y-10">
-            <section id="school-management-platform" className={sectionCard}>
-              <h3 className="text-3xl font-bold">School Management Platform</h3>
+            {/* ACCESS TO SYSTEMS */}
+            <section id="acess-to-systems" className={sectionCard}>
+              <h3 className="text-3xl font-bold">Access to Systems</h3>
 
               <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                A centralized academic and administrative system that connects
-                teachers, students, and school leadership into one unified
-                digital ecosystem. It replaces fragmented processes with a
-                structured workflow for planning, monitoring, and evaluation.
+                Great schools are built on great systems. Through our Access to
+                Systems solution, we help schools establish the structures,
+                processes, and frameworks needed to deliver consistent learning
+                outcomes, improve staff effectiveness, and strengthen overall
+                school operations.
               </p>
 
               <p className="mt-4 text-black/60 leading-8 max-w-4xl">
-                Schools gain real-time visibility into academic performance,
-                curriculum delivery, and staff coordination—enabling faster,
-                data-driven decision-making and improved accountability.
+                At the heart of this offering is our
+                <span className="font-semibold text-brand-black">
+                  {" "}
+                  Accelerated Learners Framework (ALF)
+                </span>
+                , a comprehensive lesson planning and instructional system
+                designed to guide teachers in delivering engaging, structured,
+                and learner-centered lessons. ALF provides educators with
+                ready-to-use lesson plans, teaching strategies, assessment
+                guidance, and classroom delivery frameworks that improve
+                consistency across classrooms and reduce lesson preparation
+                time.
               </p>
 
-              <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>
-                  ✓ Structured lesson planning system
-                </li>
-                <li className={listItem}>✓ Academic performance tracking</li>
-                <li className={listItem}>✓ Curriculum alignment framework</li>
-                <li className={listItem}>✓ Staff coordination tools</li>
-                <li className={listItem}>✓ Performance analytics dashboards</li>
-              </ul>
-
-              <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Starting from ₦250,000
+              <p className="mt-4 text-black/60 leading-8 max-w-4xl">
+                Beyond ALF, schools gain access to management systems,
+                operational frameworks, training programs, and governance
+                structures that help leaders build sustainable institutions
+                capable of scaling with confidence.
               </p>
+
+              <div className="mt-8 grid md:grid-cols-2 gap-4">
+                <div className={listItem}>
+                  ✓ Accelerated Learners Framework (ALF)
+                </div>
+
+                <div className={listItem}>
+                  ✓ Ready-to-use lesson plans & schemes
+                </div>
+
+                <div className={listItem}>✓ Teacher instructional guides</div>
+
+                <div className={listItem}>✓ School Management Platform</div>
+
+                <div className={listItem}>
+                  ✓ Staff Training & Professional Development
+                </div>
+
+                <div className={listItem}>✓ Club Management Frameworks</div>
+
+                <div className={listItem}>
+                  ✓ School Policy & Handbook Development
+                </div>
+
+                <div className={listItem}>✓ Academic Monitoring Systems</div>
+
+                <div className={listItem}>✓ Quality Assurance Processes</div>
+
+                <div className={listItem}>
+                  ✓ Operational Documentation & Systems
+                </div>
+              </div>
             </section>
 
-            <section id="social-media-management" className={sectionCard}>
-              <h3 className="text-3xl font-bold">Social Media Management</h3>
+            {/* ACCESS TO RESOURCES */}
+            <section id="access-to-resources" className={sectionCard}>
+              <h3 className="text-3xl font-bold">Access to Resources</h3>
 
               <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                We help schools transform their digital presence into a
-                structured communication system that builds trust, strengthens
-                reputation, and attracts prospective parents.
+                Quality learning requires quality resources. Through our
+                educational resource network, schools gain access to books,
+                learning materials, classroom resources, and educational tools
+                that support literacy, teaching effectiveness, and learner
+                engagement.
               </p>
 
               <p className="mt-4 text-black/60 leading-8 max-w-4xl">
-                Through consistent storytelling, visual identity management, and
-                engagement strategy, we position schools as credible and
-                forward-thinking institutions online.
+                We help schools build stronger reading cultures, improve
+                instructional delivery, and create richer learning environments
+                through carefully selected educational resources.
               </p>
 
-              <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>✓ Content strategy & planning</li>
-                <li className={listItem}>✓ Professional visual design</li>
-                <li className={listItem}>✓ Social media scheduling systems</li>
-                <li className={listItem}>✓ Community engagement management</li>
-                <li className={listItem}>✓ Brand positioning strategy</li>
-              </ul>
+              <div className="mt-8 grid md:grid-cols-2 gap-4">
+                <div className={listItem}>✓ Access to Educational Books</div>
 
-              <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Starting from ₦100,000
-              </p>
+                <div className={listItem}>✓ Classroom Learning Materials</div>
+
+                <div className={listItem}>✓ Literacy & Reading Resources</div>
+
+                <div className={listItem}>✓ STEM Activity Resources</div>
+
+                <div className={listItem}>
+                  ✓ Children&apos;s Literature Collections
+                </div>
+
+                <div className={listItem}>✓ School Library Setup Support</div>
+              </div>
+
+              <div className="mt-8">
+                <Link
+                  href="https://lernabookshop.bumpa.shop/"
+                  target="_blank"
+                  className="inline-flex items-center text-brand-blue font-semibold hover:underline"
+                >
+                  Visit Our Bookstore →
+                </Link>
+              </div>
             </section>
 
-            <section id="staff-training-sessions" className={sectionCard}>
-              <h3 className="text-3xl font-bold">Staff Training Sessions</h3>
+            {/* ACCESS TO FINANCE */}
+            <section id="access-to-finance" className={sectionCard}>
+              <h3 className="text-3xl font-bold">Access to Finance</h3>
 
               <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                We deliver structured professional development programs designed
-                to improve teaching quality, classroom effectiveness, and
-                student engagement through modern pedagogical approaches.
+                Sustainable growth often requires financial support. Through our
+                Access to Finance solution, schools can explore funding
+                opportunities that enable expansion, facility upgrades,
+                infrastructure development, and operational improvements.
               </p>
 
               <p className="mt-4 text-black/60 leading-8 max-w-4xl">
-                Each session focuses on practical implementation strategies that
-                educators can immediately apply in real classroom environments.
+                Beyond financing, we provide advisory support to help schools
+                make responsible financial decisions that align with their
+                long-term vision and growth objectives.
               </p>
 
-              <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>✓ Modern pedagogy training</li>
-                <li className={listItem}>✓ Classroom management systems</li>
-                <li className={listItem}>✓ Assessment design techniques</li>
-                <li className={listItem}>
-                  ✓ Technology integration in teaching
-                </li>
-              </ul>
+              <div className="mt-8 grid md:grid-cols-2 gap-4">
+                <div className={listItem}>✓ Loan-to-Schools Support</div>
+
+                <div className={listItem}>✓ School Expansion Financing</div>
+
+                <div className={listItem}>
+                  ✓ Infrastructure Development Funding
+                </div>
+
+                <div className={listItem}>✓ Financial Planning Support</div>
+
+                <div className={listItem}>✓ Growth Strategy Advisory</div>
+
+                <div className={listItem}>✓ Funding Readiness Assessment</div>
+              </div>
 
               <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Starting from ₦40,000
-              </p>
-            </section>
-
-            <section id="dedicated-supervisory-support" className={sectionCard}>
-              <h3 className="text-3xl font-bold">
-                Dedicated Supervisory Support
-              </h3>
-
-              <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                Ongoing academic supervision designed to maintain high teaching
-                standards, improve instructional quality, and support school
-                leadership with structured feedback systems.
-              </p>
-
-              <p className="mt-4 text-black/60 leading-8 max-w-4xl">
-                This service ensures continuous improvement through monitoring,
-                evaluation, and strategic guidance across all academic levels.
-              </p>
-
-              <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>✓ Quality assurance systems</li>
-                <li className={listItem}>✓ Classroom observation reports</li>
-                <li className={listItem}>✓ Staff mentoring programs</li>
-                <li className={listItem}>✓ Academic performance audits</li>
-              </ul>
-
-              <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Starting from ₦150,000
-              </p>
-            </section>
-
-            <section id="club-management" className={sectionCard}>
-              <h3 className="text-3xl font-bold">Club Management</h3>
-
-              <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                We design and manage structured co-curricular programs that
-                support holistic student development beyond academics.
-              </p>
-
-              <p className="mt-4 text-black/60 leading-8 max-w-4xl">
-                These programs build leadership, creativity, teamwork, and
-                communication skills through guided activities and structured
-                learning experiences.
-              </p>
-
-              <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>✓ STEM innovation clubs</li>
-                <li className={listItem}>✓ Debate & public speaking</li>
-                <li className={listItem}>✓ Reading development clubs</li>
-                <li className={listItem}>✓ Creative arts programs</li>
-              </ul>
-
-              <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Starting from ₦5,000 per pupil
+                Subject to assessment & eligibility
               </p>
             </section>
           </div>
@@ -208,54 +217,58 @@ export default function OffersPage() {
                 Starting from ₦200,000
               </p>
             </section>
-
-            <section id="school-policy-writing" className={sectionCard}>
-              <h3 className="text-3xl font-bold">School Policy Writing</h3>
-
-              <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                We develop clear, structured governance documents that define
-                operational standards, improve accountability, and ensure
-                consistency across school systems.
-              </p>
-
-              <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>✓ Staff & student handbooks</li>
-                <li className={listItem}>✓ Operational policies</li>
-                <li className={listItem}>✓ Safeguarding frameworks</li>
-              </ul>
-
-              <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Starting from ₦80,000
-              </p>
-            </section>
-            <section id="loan-to-schools" className={sectionCard}>
-              <h3 className="text-3xl font-bold">Loan-to-Schools Support</h3>
+            <section id="dedicated-supervisory-support" className={sectionCard}>
+              <h3 className="text-3xl font-bold">
+                Dedicated Supervisory Support
+              </h3>
 
               <p className="mt-5 text-black/60 leading-8 max-w-4xl">
-                We provide structured financial support solutions designed to
-                help schools expand infrastructure, improve facilities, and
-                invest in long-term educational growth without immediate
-                financial pressure.
+                Ongoing academic supervision designed to maintain high teaching
+                standards, improve instructional quality, and support school
+                leadership with structured feedback systems.
               </p>
 
               <p className="mt-4 text-black/60 leading-8 max-w-4xl">
-                This service connects schools to flexible funding opportunities
-                and guided financial planning support, ensuring responsible
-                borrowing aligned with institutional sustainability and growth
-                strategy.
+                This service ensures continuous improvement through monitoring,
+                evaluation, and strategic guidance across all academic levels.
               </p>
 
               <ul className="mt-8 grid md:grid-cols-2 gap-4">
-                <li className={listItem}>✓ School expansion financing</li>
-                <li className={listItem}>
-                  ✓ Infrastructure development support
-                </li>
-                <li className={listItem}>✓ Flexible repayment structuring</li>
-                <li className={listItem}>✓ Financial advisory guidance</li>
+                <li className={listItem}>✓ Quality assurance systems</li>
+                <li className={listItem}>✓ Classroom observation reports</li>
+                <li className={listItem}>✓ Staff mentoring programs</li>
+                <li className={listItem}>✓ Academic performance audits</li>
               </ul>
 
               <p className="mt-8 text-brand-blue font-semibold text-lg">
-                Subject to assessment & eligibility
+                Starting from ₦150,000
+              </p>
+            </section>
+            <section id="social-media-management" className={sectionCard}>
+              <h3 className="text-3xl font-bold">Social Media Management</h3>
+
+              <p className="mt-5 text-black/60 leading-8 max-w-4xl">
+                We help schools transform their digital presence into a
+                structured communication system that builds trust, strengthens
+                reputation, and attracts prospective parents.
+              </p>
+
+              <p className="mt-4 text-black/60 leading-8 max-w-4xl">
+                Through consistent storytelling, visual identity management, and
+                engagement strategy, we position schools as credible and
+                forward-thinking institutions online.
+              </p>
+
+              <ul className="mt-8 grid md:grid-cols-2 gap-4">
+                <li className={listItem}>✓ Content strategy & planning</li>
+                <li className={listItem}>✓ Professional visual design</li>
+                <li className={listItem}>✓ Social media scheduling systems</li>
+                <li className={listItem}>✓ Community engagement management</li>
+                <li className={listItem}>✓ Brand positioning strategy</li>
+              </ul>
+
+              <p className="mt-8 text-brand-blue font-semibold text-lg">
+                Starting from ₦100,000
               </p>
             </section>
           </div>

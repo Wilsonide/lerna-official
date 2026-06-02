@@ -46,25 +46,42 @@ export default function AboutPage() {
       </section>
 
       {/* WHAT WE DO */}
+      {/* WHAT WE DO */}
       <section className="py-28 bg-[#f8fafc]">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl font-bold mb-12">What We Do</h2>
+          <h2 className="text-4xl font-bold mb-6">What We Do</h2>
+
+          <p className="max-w-3xl text-black/60 leading-8 mb-12">
+            At Lerna, we focus on strengthening schools through three core
+            pillars that directly influence performance, sustainability, and
+            growth. Everything we build and deliver fits into one of these
+            foundational areas.
+          </p>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              "School Management Systems",
-              "Staff Training & Development",
-              "Digital School Transformation",
-              "Academic Supervision",
-              "School Branding & Visibility",
-              "Educational Resources",
+              {
+                title: "Access to Systems",
+                desc: "We help schools operate efficiently through structured systems that improve teaching, administration, and decision-making.",
+              },
+              {
+                title: "Access to Resources",
+                desc: "We equip schools with quality educational tools, training materials, and structured learning support to improve outcomes.",
+              },
+              {
+                title: "Access to Finance",
+                desc: "We support schools with financial pathways and structured funding opportunities that enable stability and expansion.",
+              },
             ].map((item) => (
               <div
-                key={item}
-                className="p-8 bg-white rounded-3xl border border-black/5 shadow-sm hover:shadow-md transition"
+                key={item.title}
+                className="p-8 bg-white rounded-3xl border border-black/5 shadow-sm hover:shadow-md hover:-translate-y-1 transition"
               >
                 <div className="w-10 h-10 rounded-xl bg-brand-orange/10 mb-5" />
-                <h3 className="font-semibold text-lg">{item}</h3>
+
+                <h3 className="font-semibold text-xl">{item.title}</h3>
+
+                <p className="mt-4 text-black/60 leading-7">{item.desc}</p>
               </div>
             ))}
           </div>

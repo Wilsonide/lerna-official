@@ -121,26 +121,21 @@ export const extraService = [
 ];
 export const services = [
   {
-    id: "school-management-platform",
-    title: "School Management Platform",
-    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+    id: "acess-to-systems",
+    title: "Access to Systems",
+    image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952",
   },
 
   {
-    id: "staff-training-sessions",
-    title: "Staff Training Sessions",
-    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+    id: "access-to-resources",
+    title: "Access to Resources",
+    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
   },
 
   {
-    id: "club-management",
-    title: "Club Management",
-    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7",
-  },
-  {
-    id: "loan-to-schools",
-    title: "Loan to Schools",
-    image: "https://images.unsplash.com/photo-1521791136064-7986c2920216",
+    id: "access-to-finance",
+    title: "Access to Finance",
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f",
   },
 ];
 
@@ -148,24 +143,18 @@ export const extraServices = [
   {
     id: "school-website-design",
     title: "School Website Design",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
   },
 
   {
     id: "social-media-management",
     title: "Social Media Management",
-    image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113",
+    image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07",
   },
 
   {
     id: "dedicated-supervisory-support",
     title: "Dedicated Supervisory Support",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978",
-  },
-
-  {
-    id: "school-policy-writing",
-    title: "School Policy & Handbook Writing",
-    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85",
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
   },
 ];
