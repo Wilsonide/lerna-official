@@ -2,6 +2,7 @@ import Hero from "@/components/section/hero";
 import Services from "@/components/section/services";
 
 import ExtraServices from "@/components/section/extra-services";
+import BlogPreview from "@/components/section/blog-preview";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <Services />
 
       <ExtraServices />
+      <BlogPreview />
     </main>
   );
 }
