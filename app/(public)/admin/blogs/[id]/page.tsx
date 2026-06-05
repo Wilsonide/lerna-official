@@ -1,15 +1,6 @@
 import BlogForm from "@/components/admin/blog-form";
 import { notFound } from "next/navigation";
-
-async function getBlog(id: string) {
-  const res = await fetch(`http://localhost:3000/api/blogs/${id}`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) return null;
-
-  return res.json();
-}
+import { prisma } from "@/lib/prisma";
 
 export default async function EditBlogPage({
   params,
@@ -18,7 +9,11 @@ export default async function EditBlogPage({
 }) {
   const { id } = await params;
 
-  const blog = await getBlog(id);
+  const blog = await prisma.blogPost.findFirst({
+    where: {
+      id,
+    },
+  });
 
   if (!blog) {
     notFound();
