@@ -1,71 +1,81 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-const posts = [
-  {
-    title: "How Schools Can Improve Academic Performance in 2026",
-    excerpt:
-      "A practical guide to improving teaching quality, student outcomes, and academic tracking systems.",
-    slug: "improving-academic-performance",
-  },
-  {
-    title: "Why School Management Systems Are No Longer Optional",
-    excerpt:
-      "Discover how digital systems are transforming modern education administration.",
-    slug: "importance-of-school-management-systems",
-  },
-  {
-    title: "Building a Strong School Brand Online",
-    excerpt:
-      "Learn how schools can attract more parents and students through digital presence.",
-    slug: "school-branding-online",
-  },
-];
+export default async function BlogPage() {
+  const blogs = await prisma.blogPost.findMany({
+    where: {
+      published: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-export default function BlogPage() {
   return (
-    <main className="bg-white text-brand-black">
-      {/* HERO */}
-      <section className="bg-[#f8fafc] py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="uppercase tracking-[0.35em] text-sm font-semibold text-brand-blue">
-            Blog & Insights
-          </p>
+    <main className="max-w-7xl mx-auto px-6 py-20">
+      {/* HEADER */}
+      <div className="text-center max-w-2xl mx-auto">
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight">Blog</h1>
+        <p className="mt-4 text-gray-600 text-lg">
+          Insights, updates, and stories from our team.
+        </p>
+      </div>
 
-          <h1 className="mt-6 text-5xl md:text-7xl font-bold max-w-5xl leading-tight">
-            Insights, strategies, and ideas for modern school improvement.
-          </h1>
-
-          <p className="mt-8 max-w-3xl text-lg text-black/60 leading-8">
-            Explore practical articles on school management, teaching
-            strategies, digital transformation, and educational leadership.
+      {/* EMPTY STATE */}
+      {blogs.length === 0 ? (
+        <div className="mt-20 flex flex-col items-center justify-center text-center border rounded-2xl p-12 bg-gray-50">
+          <div className="text-5xl">📝</div>
+          <h2 className="mt-4 text-xl font-semibold">No blog posts yet</h2>
+          <p className="text-gray-500 mt-2">
+            Check back soon for new content and updates.
           </p>
         </div>
-      </section>
+      ) : (
+        <>
+          {/* GRID */}
+          <div className="grid gap-8 mt-16 sm:grid-cols-2 lg:grid-cols-3">
+            {blogs.map((blog) => (
+              <Link
+                href={`/blogs/${blog.slug}`}
+                key={blog.id}
+                className="group border rounded-3xl overflow-hidden bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                {/* IMAGE */}
+                <div className="overflow-hidden">
+                  {blog.coverImage ? (
+                    <img
+                      src={blog.coverImage}
+                      alt={blog.title}
+                      className="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="h-56 w-full bg-gray-100 flex items-center justify-center text-gray-400">
+                      No Image
+                    </div>
+                  )}
+                </div>
 
-      {/* POSTS */}
-      <section className="py-28">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-10">
-          {posts.map((post) => (
-            <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="group p-8 rounded-3xl border border-black/5 bg-white shadow-sm hover:shadow-md transition"
-            >
-              <div className="w-10 h-10 rounded-xl bg-brand-blue/10 mb-5" />
+                {/* CONTENT */}
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold line-clamp-2 group-hover:text-brand-blue transition-colors">
+                    {blog.title}
+                  </h2>
 
-              <h2 className="text-xl font-semibold group-hover:text-brand-blue transition">
-                {post.title}
-              </h2>
+                  <p className="mt-3 text-gray-600 text-sm line-clamp-3">
+                    {blog.excerpt}
+                  </p>
 
-              <p className="mt-4 text-black/60 leading-7">{post.excerpt}</p>
-
-              <span className="inline-flex mt-6 text-sm font-medium text-brand-blue">
-                Read more →
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+                  {/* META */}
+                  <div className="mt-5 flex items-center justify-between text-xs text-gray-400">
+                    <span>{blog.readingTime} min read</span>
+                    <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
     </main>
   );
 }
