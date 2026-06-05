@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import DeleteBlogButton from "@/components/admin/delete-blog-button";
-
-async function getBlogs() {
-  const res = await fetch("http://localhost:3000/api/blogs", {
-    cache: "no-store",
-  });
-
-  return res.json();
-}
+import { prisma } from "@/lib/prisma";
 
 export default async function BlogsPage() {
-  const blogs = await getBlogs();
+  const blogs = await prisma.blogPost.findMany({
+    where: {
+      published: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   return (
     <div className="max-w-6xl mx-auto">
