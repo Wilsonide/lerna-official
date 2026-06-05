@@ -73,16 +73,6 @@ export default function Navbar() {
 
         {/* RIGHT SIDE ACTIONS (DESKTOP) */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
-          {/* CTA */}
-          <a
-            href="https://wa.me/2348068698329"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-white text-brand-orange text-sm font-semibold hover:bg-white/90 transition shadow-sm"
-          >
-            Book Consultation
-          </a>
-
           {/* USER BUTTON */}
           <UserButton />
         </div>
@@ -147,16 +137,6 @@ export default function Navbar() {
                 Admin Panel
               </Link>
             )}
-
-            {/* CTA (mobile) */}
-            <a
-              href="https://wa.me/2348068698329"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-brand-orange px-6 py-3 rounded-full text-sm font-semibold text-center hover:opacity-90 transition"
-            >
-              Book Consultation
-            </a>
           </div>
         </div>
       )}
