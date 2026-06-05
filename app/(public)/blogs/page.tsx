@@ -36,7 +36,7 @@ export default async function BlogPage() {
           <div className="grid gap-8 mt-16 sm:grid-cols-2 lg:grid-cols-3">
             {blogs.map((blog) => (
               <Link
-                href={`/blogs/${blog.slug}`}
+                href={`/blogs/${blog.id}`}
                 key={blog.id}
                 className="group border rounded-3xl overflow-hidden bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >

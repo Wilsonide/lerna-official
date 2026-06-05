@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function BlogPost({ params }: Props) {
-  const blog = await prisma.blogPost.findUnique({
+  const blog = await prisma.blogPost.findFirst({
     where: {
       id: params.id,
       published: true, // 🔥 IMPORTANT: hide drafts
