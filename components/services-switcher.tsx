@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 import {
@@ -17,11 +17,13 @@ type Mode = "schools" | "individuals";
 export default function ServicesSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // ✅ single source of truth
+  // ✅ SAFE: read from window only (no SSR crash)
   const mode: Mode =
-    searchParams.get("mode") === "individuals" ? "individuals" : "schools";
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("mode") === "individuals"
+      ? "individuals"
+      : "schools";
 
   const services = mode === "schools" ? schoolServices : individualServices;
 
@@ -29,7 +31,7 @@ export default function ServicesSwitcher() {
     mode === "schools" ? schoolExtraServices : individualExtraServices;
 
   function switchMode(newMode: Mode) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     params.set("mode", newMode);
 
     router.push(`${pathname}?${params.toString()}`, {
