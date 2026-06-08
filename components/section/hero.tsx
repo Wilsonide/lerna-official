@@ -155,11 +155,11 @@ export default function Hero() {
               {/* CARD 1 */}
               <div className="overflow-hidden rounded-3xl bg-brand-blue p-6 text-white shadow-lg">
                 <p className="text-sm font-medium text-white/80">
-                  Schools Supported
+                  Books & Materials Distributed
                 </p>
 
                 <h3 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
-                  120+
+                  7,000+
                 </h3>
 
                 <div className="mt-6 h-1.5 w-16 rounded-full bg-white/30" />
@@ -168,11 +168,11 @@ export default function Hero() {
               {/* CARD 2 */}
               <div className="overflow-hidden rounded-3xl bg-brand-orange p-6 text-white shadow-lg">
                 <p className="text-sm font-medium text-white/80">
-                  Teachers Trained
+                  Teacher Effectiveness
                 </p>
 
                 <h3 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
-                  500+
+                  85%
                 </h3>
 
                 <div className="mt-6 h-1.5 w-16 rounded-full bg-white/30" />
@@ -183,42 +183,53 @@ export default function Hero() {
                 {/* HEADER */}
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-black/50">
-                    Academic Excellence
+                    Learning Impact Report
                   </p>
 
                   <p className="text-sm font-semibold text-brand-blue">85%</p>
                 </div>
 
-                {/* PROGRESS */}
+                {/* PROGRESS BAR (ADDED BACK) */}
                 <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-black/5">
                   <div className="h-full w-[85%] rounded-full bg-brand-blue" />
                 </div>
 
                 {/* DESCRIPTION */}
                 <p className="mt-6 text-[15px] leading-8 text-black/60 sm:text-base">
-                  Structured systems that improve school operations, teaching
-                  consistency, staff development, and parent confidence.
+                  7,000+ books and instructional materials have been distributed
+                  to learners in schools and communities across Africa. Teachers
+                  using our structured lesson plans report:
                 </p>
+
+                {/* BULLETS */}
+                <div className="mt-6 space-y-3 text-black/70 leading-7">
+                  <div>✓ Improved understanding among learners</div>
+                  <div>✓ Increased classroom participation</div>
+                  <div>✓ Increased confidence in classroom discussions</div>
+                  <div>
+                    ✓ More active questioning and engagement from students
+                  </div>
+                </div>
 
                 {/* MINI STATS */}
                 <div className="mt-8 grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl bg-black/[0.03] p-4">
+                  <div className="rounded-2xl bg-black/3 p-4">
                     <p className="text-xs uppercase tracking-[0.2em] text-black/40">
-                      Growth
+                      Reach
                     </p>
 
                     <h4 className="mt-2 text-2xl font-bold text-brand-black">
-                      +240%
+                      Africa-wide
                     </h4>
                   </div>
 
-                  <div className="rounded-2xl bg-black/[0.03] p-4">
+                  <div className="rounded-2xl bg-black/3 p-4">
                     <p className="text-xs uppercase tracking-[0.2em] text-black/40">
-                      Retention
+                      Engagement
                     </p>
 
                     <h4 className="mt-2 text-2xl font-bold text-brand-black">
-                      96%
+                      High
                     </h4>
                   </div>
                 </div>
