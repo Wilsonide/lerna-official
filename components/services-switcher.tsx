@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 import {
@@ -15,19 +15,34 @@ import ServicePreviewCard from "./ui/service-preview-card";
 type Mode = "schools" | "individuals";
 
 export default function ServicesSwitcher() {
-  const [mode, setMode] = useState<Mode>("schools");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // ✅ single source of truth
+  const mode: Mode =
+    searchParams.get("mode") === "individuals" ? "individuals" : "schools";
 
   const services = mode === "schools" ? schoolServices : individualServices;
 
   const extraServices =
     mode === "schools" ? schoolExtraServices : individualExtraServices;
 
+  function switchMode(newMode: Mode) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("mode", newMode);
+
+    router.push(`${pathname}?${params.toString()}`, {
+      scroll: false,
+    });
+  }
+
   return (
     <>
       {/* ================= CORE SERVICES ================= */}
       <section className="bg-[#f8fafc] py-28">
         <div className="mx-auto max-w-7xl px-6">
-          {/* HEADER (TEXT ONLY) */}
+          {/* HEADER */}
           <div className="max-w-3xl">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-brand-blue">
               Core Services
@@ -54,7 +69,7 @@ export default function ServicesSwitcher() {
             </p>
           </div>
 
-          {/* ================= NEW LINE TOGGLE SECTION ================= */}
+          {/* ================= TOGGLE ================= */}
           <div className="w-full flex justify-center lg:justify-start mt-14">
             <div className="w-full max-w-md lg:max-w-sm">
               <div className="relative grid grid-cols-2 rounded-full bg-slate-100 p-1 shadow-md border border-slate-200">
@@ -67,7 +82,7 @@ export default function ServicesSwitcher() {
                 />
 
                 <button
-                  onClick={() => setMode("schools")}
+                  onClick={() => switchMode("schools")}
                   className={`relative z-10 py-3 text-sm font-semibold transition ${
                     mode === "schools" ? "text-white" : "text-slate-600"
                   }`}
@@ -76,7 +91,7 @@ export default function ServicesSwitcher() {
                 </button>
 
                 <button
-                  onClick={() => setMode("individuals")}
+                  onClick={() => switchMode("individuals")}
                   className={`relative z-10 py-3 text-sm font-semibold transition ${
                     mode === "individuals" ? "text-white" : "text-slate-600"
                   }`}

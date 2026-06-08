@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const sectionCard =
   "scroll-mt-24 border border-black/5 rounded-3xl p-10 md:p-14 bg-white shadow-sm hover:shadow-md transition";
@@ -10,15 +10,28 @@ const listItem = "flex items-start gap-3 text-black/70 leading-7";
 type Mode = "schools" | "individuals";
 
 export default function OffersPage() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  /**
+   * OPTIONAL: read URL safely on client only
+   * (no SSR crash, no suspense issue)
+   */
+  const getInitialMode = (): Mode => {
+    if (typeof window === "undefined") return "schools";
 
-  const mode: Mode =
-    searchParams.get("mode") === "individuals" ? "individuals" : "schools";
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+
+    return mode === "individuals" ? "individuals" : "schools";
+  };
+
+  const [mode, setMode] = useState<Mode>(getInitialMode);
 
   function switchMode(newMode: Mode) {
-    router.push(`${pathname}?mode=${newMode}`, { scroll: false });
+    setMode(newMode);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", newMode);
+
+    window.history.pushState({}, "", url.toString());
   }
 
   return (
