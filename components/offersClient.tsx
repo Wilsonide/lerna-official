@@ -23,7 +23,8 @@ export default function OffersPage() {
     return mode === "individuals" ? "individuals" : "schools";
   };
 
-  const [mode, setMode] = useState<Mode>(getInitialMode);
+  // ✅ FIXED: lazy initializer removes need for useEffect (prevents setState-in-effect error)
+  const [mode, setMode] = useState<Mode>(() => getInitialMode());
 
   function switchMode(newMode: Mode) {
     setMode(newMode);
@@ -92,8 +93,6 @@ export default function OffersPage() {
           <div className="space-y-10">
             {mode === "schools" ? (
               <>
-                {/* ================= SCHOOLS ================= */}
-
                 <section id="access-to-systems" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Systems</h3>
 
@@ -185,8 +184,6 @@ export default function OffersPage() {
               </>
             ) : (
               <>
-                {/* ================= INDIVIDUALS ================= */}
-
                 <section id="career-guidance" className={sectionCard}>
                   <h3 className="text-3xl font-bold">
                     Career Guidance & Mentorship

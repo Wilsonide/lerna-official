@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -18,12 +19,15 @@ export default function ServicesSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // ✅ SAFE: read from window only (no SSR crash)
-  const mode: Mode =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("mode") === "individuals"
-      ? "individuals"
-      : "schools";
+  // ✅ SAFE: initialize state from URL (no useEffect needed)
+  const [mode, setMode] = useState<Mode>(() => {
+    if (typeof window === "undefined") return "schools";
+
+    const params = new URLSearchParams(window.location.search);
+    const urlMode = params.get("mode");
+
+    return urlMode === "individuals" ? "individuals" : "schools";
+  });
 
   const services = mode === "schools" ? schoolServices : individualServices;
 
@@ -31,6 +35,8 @@ export default function ServicesSwitcher() {
     mode === "schools" ? schoolExtraServices : individualExtraServices;
 
   function switchMode(newMode: Mode) {
+    setMode(newMode);
+
     const params = new URLSearchParams(window.location.search);
     params.set("mode", newMode);
 
