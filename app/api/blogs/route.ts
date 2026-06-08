@@ -5,6 +5,7 @@ import { calculateReadingTime } from "@/lib/reading-time";
 
 export async function POST(request: Request) {
   try {
+    console.log("COOKIE HEADER:", request.headers.get("cookie"));
     const admin = await requireAdmin();
     const body = await request.json();
 

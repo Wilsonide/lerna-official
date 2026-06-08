@@ -119,9 +119,9 @@ export const extraService = [
     price: "₦80,000",
   },
 ];
-export const services = [
+export const schoolServices = [
   {
-    id: "acess-to-systems",
+    id: "access-to-systems",
     title: "Access to Systems",
     image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952",
   },
@@ -139,7 +139,7 @@ export const services = [
   },
 ];
 
-export const extraServices = [
+export const schoolExtraServices = [
   {
     id: "school-website-design",
     title: "School Website Design",
@@ -156,5 +156,45 @@ export const extraServices = [
     id: "dedicated-supervisory-support",
     title: "Dedicated Supervisory Support",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+  },
+];
+
+export const individualServices = [
+  {
+    id: "career-guidance",
+    title: "Career Guidance & Mentorship",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644",
+  },
+
+  {
+    id: "scholarship-support",
+    title: "Scholarship & Admission Support",
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1",
+  },
+
+  {
+    id: "skills-development",
+    title: "Skills Development & Certifications",
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+  },
+];
+
+export const individualExtraServices = [
+  {
+    id: "study-abroad-advisory",
+    title: "Study Abroad Advisory",
+    image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828",
+  },
+
+  {
+    id: "digital-literacy",
+    title: "Digital Literacy Training",
+    image: "https://images.unsplash.com/photo-1516321165247-4aa89a48be28",
+  },
+
+  {
+    id: "entrepreneurship-support",
+    title: "Entrepreneurship Support",
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978",
   },
 ];

@@ -15,6 +15,8 @@ export async function getCurrentUser() {
         id: payload.userId,
       },
     });
+    console.log("TOKEN PAYLOAD:", payload);
+    console.log("USER FROM DB:", user);
 
     return user;
   } catch {

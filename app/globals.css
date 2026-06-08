@@ -2,6 +2,46 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+.blog-content p {
+  margin: 0 0 1rem;
+  line-height: 1.7;
+}
+
+.blog-content strong {
+  font-weight: 700;
+}
+
+.blog-content em {
+  font-style: italic;
+}
+
+.blog-content ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.blog-content ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #555;
+  font-style: italic;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3 {
+  font-weight: 700;
+  margin: 1.5rem 0 1rem;
+}
+
 @theme {
   --color-brand-blue: #3b71e8;
   --color-brand-orange: #f28c28;
