@@ -66,10 +66,16 @@ export default function Navbar() {
             Blogs
           </Link>
 
-          {/* SCHOOL ADMIN ACCESS */}
+          {/* ADMIN ACCESS (SUPER + SCHOOL) */}
           {user?.role === "SUPER_ADMIN" && (
             <Link href="/admin" className={linkClass("/admin")}>
-              Admin
+              Admin Panel
+            </Link>
+          )}
+
+          {user?.role === "SCHOOL_ADMIN" && (
+            <Link href="/school-admin" className={linkClass("/school-admin")}>
+              Admin Panel
             </Link>
           )}
         </nav>
@@ -128,12 +134,22 @@ export default function Navbar() {
               Blogs
             </Link>
 
-            {/* SCHOOL ADMIN ONLY */}
+            {/* ADMIN ACCESS (SUPER + SCHOOL) */}
             {user?.role === "SUPER_ADMIN" && (
               <Link
                 href="/admin"
                 onClick={closeMenu}
                 className={linkClass("/admin")}
+              >
+                Admin Panel
+              </Link>
+            )}
+
+            {user?.role === "SCHOOL_ADMIN" && (
+              <Link
+                href="/school-admin"
+                onClick={closeMenu}
+                className={linkClass("/school-admin")}
               >
                 Admin Panel
               </Link>
