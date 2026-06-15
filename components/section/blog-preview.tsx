@@ -1,22 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
-
-import { prisma } from "@/lib/prisma";
+import { BlogService } from "@/app/services/blog.services";
 
 export default async function FeaturedPosts() {
-  const posts = await prisma.blogPost.findMany({
-    where: {
-      featured: true,
-      published: true,
-    },
+  const posts = await BlogService.getFeaturedBlogs();
 
-    take: 3,
-
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  if (!posts.length) return null;
+  if (!posts?.length) return null;
 
   return (
     <section className="py-28 bg-[#f8fafc]">
@@ -28,15 +17,15 @@ export default async function FeaturedPosts() {
         <h2 className="text-5xl font-bold">Insights For School Leaders</h2>
 
         <div className="grid md:grid-cols-3 gap-8 mt-16">
-          {posts.map((post) => (
+          {posts.map((post: any) => (
             <Link
               key={post.id}
               href={`/blogs/${post.id}`}
               className="bg-white rounded-3xl overflow-hidden border border-black/5 hover:shadow-xl transition"
             >
-              {post.coverImage && (
+              {post.cover_image && (
                 <img
-                  src={post.coverImage}
+                  src={post.cover_image}
                   alt={post.title}
                   className="h-64 w-full object-cover"
                 />
@@ -44,7 +33,7 @@ export default async function FeaturedPosts() {
 
               <div className="p-6">
                 <p className="text-sm text-brand-blue mb-3">
-                  {post.readingTime} min read
+                  {post.reading_time} min read
                 </p>
 
                 <h3 className="text-2xl font-bold">{post.title}</h3>

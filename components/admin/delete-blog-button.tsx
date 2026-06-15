@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import Modal from "@/components/ui/modal";
+import { BlogService } from "@/app/services/blog.services";
 
 export default function DeleteBlogButton({ id }: { id: string }) {
   const router = useRouter();
@@ -17,13 +20,7 @@ export default function DeleteBlogButton({ id }: { id: string }) {
     try {
       setLoading(true);
 
-      const res = await fetch(`/api/blogs/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete");
-      }
+      await BlogService.deleteBlog(id);
 
       toast.success("Blog deleted successfully", {
         id: toastId,
@@ -31,8 +28,8 @@ export default function DeleteBlogButton({ id }: { id: string }) {
 
       setOpen(false);
       router.refresh();
-    } catch (err) {
-      toast.error("Failed to delete blog", {
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to delete blog", {
         id: toastId,
       });
     } finally {

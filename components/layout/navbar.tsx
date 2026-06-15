@@ -5,13 +5,15 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { useAuth } from "@/app/context/authcontext";
-import { UserButton } from "../ui/userbutton";
+
+import { UserButton } from "../auth/userbutton";
+import { useAuthStore } from "@/app/store/auth-store";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { user } = useAuth();
+
+  const user = useAuthStore((s) => s.user);
 
   const linkClass = (path: string) =>
     `text-sm font-medium transition ${
@@ -23,7 +25,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-brand-orange border-b border-white/10 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* LOGO */}
+        {/* ================= LOGO ================= */}
         <Link href="/" className="flex items-center gap-3 shrink-0 pr-8">
           <div className="w-12 h-12 flex items-center justify-center">
             <Image
@@ -46,7 +48,7 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* DESKTOP NAV */}
+        {/* ================= DESKTOP NAV ================= */}
         <nav className="hidden md:flex items-center gap-10">
           <Link href="/" className={linkClass("/")}>
             Home
@@ -64,25 +66,23 @@ export default function Navbar() {
             Blogs
           </Link>
 
-          {user?.role === "ADMIN" && (
+          {/* SCHOOL ADMIN ACCESS */}
+          {user?.role === "SUPER_ADMIN" && (
             <Link href="/admin" className={linkClass("/admin")}>
               Admin
             </Link>
           )}
         </nav>
 
-        {/* RIGHT SIDE ACTIONS (DESKTOP) */}
+        {/* ================= RIGHT SIDE ================= */}
         <div className="hidden md:flex items-center gap-4 ml-auto">
-          {/* USER BUTTON */}
           <UserButton />
         </div>
 
-        {/* MOBILE RIGHT SIDE */}
+        {/* ================= MOBILE ================= */}
         <div className="md:hidden flex items-center gap-3">
-          {/* USER BUTTON (VISIBLE ON MOBILE TOO) */}
           <UserButton />
 
-          {/* HAMBURGER */}
           <button
             className="text-white"
             onClick={() => setOpen((prev) => !prev)}
@@ -92,7 +92,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* ================= MOBILE MENU ================= */}
       {open && (
         <div className="md:hidden border-t border-white/10 bg-brand-orange">
           <div className="px-6 py-6 flex flex-col gap-6">
@@ -128,7 +128,8 @@ export default function Navbar() {
               Blogs
             </Link>
 
-            {user?.role === "ADMIN" && (
+            {/* SCHOOL ADMIN ONLY */}
+            {user?.role === "SUPER_ADMIN" && (
               <Link
                 href="/admin"
                 onClick={closeMenu}
