@@ -32,7 +32,8 @@ export default function SchoolStudentsPage() {
   async function loadStudents() {
     try {
       const data = await SchoolAdminService.getSchoolStudents();
-      setStudents(data);
+
+      setStudents(data?.students ?? []); // 🔥 FIX HERE
     } catch {
       toast.error("Failed to load students");
     }
