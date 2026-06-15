@@ -27,6 +27,11 @@ export const SchoolAdminService = {
     return data;
   },
 
+  getSchoolTeachers: async () => {
+    const { data } = await api.get(`/school-admin/teachers`);
+    return data;
+  },
+
   // =========================
   // CLASSES
   // =========================

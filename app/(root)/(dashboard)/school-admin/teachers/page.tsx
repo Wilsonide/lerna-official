@@ -37,7 +37,7 @@ export default function TeachersPage() {
     try {
       setLoading(true);
 
-      const data = await SchoolAdminService.getTeachers();
+      const data = await SchoolAdminService.getSchoolTeachers();
 
       setTeachers(data.teachers ?? data);
     } catch {
