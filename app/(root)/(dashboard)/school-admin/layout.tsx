@@ -7,7 +7,7 @@ export default function SuperadminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { hydrated } = useProtectedRoute("SUPER_ADMIN");
+  const { hydrated } = useProtectedRoute("SCHOOL_ADMIN");
 
   if (!hydrated) {
     return (
