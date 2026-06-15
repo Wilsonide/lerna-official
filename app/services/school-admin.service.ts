@@ -17,6 +17,11 @@ export const SchoolAdminService = {
     return data;
   },
 
+  getSchoolStudents: async () => {
+    const { data } = await api.get(`/school-admin/students`);
+    return data;
+  },
+
   getTeachers: async (classId: string) => {
     const { data } = await api.get(`/school-admin/${classId}/teachers`);
     return data;
