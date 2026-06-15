@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
 
@@ -14,11 +14,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function RegisterForm() {
-  const router = useRouter();
-  const params = useSearchParams();
+type RegisterFormProps = {
+  inviteCode: string;
+};
 
-  const inviteCode = params.get("invite");
+export default function RegisterForm({ inviteCode }: RegisterFormProps) {
+  const router = useRouter();
 
   const setUser = useAuthStore((s) => s.setUser);
   const setAccessToken = useAuthStore((s) => s.setAccessToken);
@@ -29,20 +30,20 @@ export default function RegisterForm() {
 
   const [loading, setLoading] = useState(false);
 
-  // 🚨 BLOCK ACCESS WITHOUT INVITE CODE
   useEffect(() => {
     if (!inviteCode) {
       toast.error(
         "Ask your school administrator for an invite code to register",
       );
     }
-  }, [inviteCode, router]);
+  }, [inviteCode]);
 
   async function submit() {
     try {
       if (!inviteCode) return;
 
       setLoading(true);
+      setError("");
 
       const result = await AuthService.register(email, password, inviteCode);
 
@@ -70,26 +71,25 @@ export default function RegisterForm() {
           break;
 
         case "SCHOOL_ADMIN":
-          router.push("/admin");
+          router.push("/school-admin");
           break;
 
         case "SUPER_ADMIN":
-          router.push("/super-admin");
+          router.push("/admin");
           break;
 
         default:
           router.push("/");
       }
     } catch (error: any) {
-      console.log(error);
-      // 🧠 CASE 1: No server / network error
+      console.error(error);
+
       if (!error?.response) {
         setError("Server unavailable. Please try again later.");
         return;
       }
 
-      // 🧠 CASE 2: Backend responded with error (401, 400, etc.)
-      setError(error?.response?.data?.detail || "Invalid email or password");
+      setError(error?.response?.data?.detail || "Failed to create account");
     } finally {
       setLoading(false);
     }
@@ -101,8 +101,16 @@ export default function RegisterForm() {
         <CardContent className="p-8 space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">Create Account</h1>
+
             <p className="text-muted-foreground">Join your school on LERNA</p>
           </div>
+
+          {!inviteCode && (
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700">
+              Registration requires a valid invite code from your school
+              administrator.
+            </div>
+          )}
 
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
@@ -110,19 +118,20 @@ export default function RegisterForm() {
             </div>
           )}
 
-          {/* Email */}
           <div className="space-y-2">
             <Label>Email</Label>
+
             <Input
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="student@school.com"
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <Label>Password</Label>
+
             <Input
               type="password"
               value={password}

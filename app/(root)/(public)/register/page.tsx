@@ -1,7 +1,11 @@
-"use client";
-
 import RegisterForm from "@/components/auth/register-form";
 
-export default function Page() {
-  return <RegisterForm />;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite?: string }>;
+}) {
+  const params = await searchParams;
+
+  return <RegisterForm inviteCode={params.invite ?? ""} />;
 }
