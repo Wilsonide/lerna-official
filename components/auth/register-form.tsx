@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 import { AuthService } from "@/app/services/auth.service";
 import { useAuthStore } from "@/app/store/auth-store";
@@ -24,6 +25,8 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,10 +40,6 @@ export default function RegisterForm() {
         return;
       }
 
-      /**
-       * username format:
-       * schoolSlug_username
-       */
       const result = await AuthService.register(email, password, username);
 
       setUser(result.user);
@@ -48,7 +47,6 @@ export default function RegisterForm() {
 
       toast.success("Account created successfully");
 
-      // route by role
       switch (result.user.role) {
         case "STUDENT":
           router.push("/student");
@@ -128,15 +126,27 @@ export default function RegisterForm() {
             />
           </div>
 
-          {/* PASSWORD */}
+          {/* PASSWORD WITH TOGGLE */}
           <div className="space-y-2">
             <Label>Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
+
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="pr-10"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           {/* BUTTON */}
