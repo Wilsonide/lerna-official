@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 export default function LoginForm() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
+  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function LoginForm() {
       setLoading(true);
       setError("");
 
-      const result = await AuthService.login(email, password);
+      const result = await AuthService.login(username, password);
 
       useAuthStore.setState({
         user: result.user,
@@ -100,8 +100,8 @@ export default function LoginForm() {
             <Input
               type="email"
               placeholder="john@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
             />
           </div>
 

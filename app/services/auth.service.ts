@@ -10,11 +10,11 @@ export const AuthService = {
     return data;
   },
 
-  register: async (email: string, password: string, invite_code: string) => {
+  register: async (email: string, password: string, username: string) => {
     const { data } = await api.post("/auth/register", {
       email,
       password,
-      invite_code,
+      username,
     });
 
     return data;
