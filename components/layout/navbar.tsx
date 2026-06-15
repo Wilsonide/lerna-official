@@ -65,17 +65,33 @@ export default function Navbar() {
           <Link href="/blogs" className={linkClass("/blogs")}>
             Blogs
           </Link>
+          {/* ================= ADMIN ACCESS ================= */}
 
-          {/* ADMIN ACCESS (SUPER + SCHOOL) */}
           {user?.role === "SUPER_ADMIN" && (
-            <Link href="/admin" className={linkClass("/admin")}>
-              Admin Panel
+            <Link
+              href="/admin"
+              className={`relative px-4 py-1.5 rounded-full text-sm font-semibold transition 
+      bg-white text-brand-orange shadow-md hover:scale-105
+      after:content-[''] after:absolute after:-right-1 after:-top-1 
+      after:w-2 after:h-2 after:bg-green-400 after:rounded-full after:animate-pulse
+    `}
+            >
+              🛠 Super Admin
+              <span className="ml-2 text-xs opacity-70">Manage System</span>
             </Link>
           )}
-
           {user?.role === "SCHOOL_ADMIN" && (
-            <Link href="/school-admin" className={linkClass("/school-admin")}>
-              Admin Panel
+            <Link
+              href="/school-admin"
+              className={`relative px-4 py-1.5 rounded-full text-sm font-semibold transition 
+      bg-white/10 text-white border border-white/20
+      hover:bg-white hover:text-brand-orange hover:scale-105
+      after:content-[''] after:absolute after:-right-1 after:-top-1 
+      after:w-2 after:h-2 after:bg-blue-400 after:rounded-full after:animate-pulse
+    `}
+            >
+              🎓 School Admin
+              <span className="ml-2 text-xs opacity-70">Manage School</span>
             </Link>
           )}
         </nav>
@@ -134,14 +150,14 @@ export default function Navbar() {
               Blogs
             </Link>
 
-            {/* ADMIN ACCESS (SUPER + SCHOOL) */}
             {user?.role === "SUPER_ADMIN" && (
               <Link
                 href="/admin"
                 onClick={closeMenu}
-                className={linkClass("/admin")}
+                className="px-4 py-2 rounded-lg bg-white text-brand-orange font-semibold flex items-center gap-2"
               >
-                Admin Panel
+                🛠 Super Admin{" "}
+                <span className="text-xs opacity-60">Manage System</span>
               </Link>
             )}
 
@@ -149,9 +165,10 @@ export default function Navbar() {
               <Link
                 href="/school-admin"
                 onClick={closeMenu}
-                className={linkClass("/school-admin")}
+                className="px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 flex items-center gap-2"
               >
-                Admin Panel
+                🎓 School Admin{" "}
+                <span className="text-xs opacity-60">Manage School</span>
               </Link>
             )}
           </div>
