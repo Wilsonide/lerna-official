@@ -138,8 +138,8 @@ export default function LoginForm() {
           {/* FORMAT HINT */}
           {loginType === "SCHOOL_USER" && (
             <div className="text-xs text-muted-foreground bg-muted p-3 rounded-lg">
-              Format: <b>schoolslug_username</b> <br />
-              Example: <span className="font-mono">lerna_john</span>
+              Format : <b>schoolslug_username</b> <br />
+              Example : <span className="font-mono">lerna_john</span>
             </div>
           )}
 
