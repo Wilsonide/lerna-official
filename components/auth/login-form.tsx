@@ -42,6 +42,8 @@ export default function LoginForm() {
       setError("");
 
       const result = await AuthService.login(identifier, password);
+      console.log("LOGIN RESPONSE", result);
+      console.log("ROLE", result.user.role);
 
       useAuthStore.setState({
         user: result.user,
