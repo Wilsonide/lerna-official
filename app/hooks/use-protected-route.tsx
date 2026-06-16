@@ -15,7 +15,7 @@ export function useProtectedRoute(role?: string) {
     if (!hydrated || isLoading) return;
 
     if (!user) {
-      router.replace("/login");
+      router.replace("/");
       return;
     }
 

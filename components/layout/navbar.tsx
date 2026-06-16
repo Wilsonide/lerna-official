@@ -65,6 +65,13 @@ export default function Navbar() {
           <Link href="/blogs" className={linkClass("/blogs")}>
             Blogs
           </Link>
+          <Link
+            href="/schools"
+            onClick={closeMenu}
+            className={linkClass("/schools")}
+          >
+            Register School
+          </Link>
           {/* ================= ADMIN ACCESS ================= */}
 
           {user?.role === "SUPER_ADMIN" && (
@@ -148,6 +155,13 @@ export default function Navbar() {
               className={linkClass("/blogs")}
             >
               Blogs
+            </Link>
+            <Link
+              href="/schools"
+              onClick={closeMenu}
+              className={linkClass("/schools")}
+            >
+              Register School
             </Link>
 
             {user?.role === "SUPER_ADMIN" && (
