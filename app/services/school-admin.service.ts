@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 
 export const SchoolAdminService = {
@@ -118,27 +119,31 @@ export const SchoolAdminService = {
   // =====================
   // TIMETABLE
   // =====================
-  createTimetable: async (payload: {
-    class_id: string;
-    subject_id: string;
-    teacher_id: string;
-    day_of_week: string;
-    start_time: string;
-    end_time: string;
-  }) => {
-    const { data } = await api.post("/school-admin/timetable", payload);
+
+  getClassTimetable: async (
+    classId: string,
+    sessionId?: string,
+    termId?: string,
+  ) => {
+    const { data } = await api.get(
+      `/school-admin/classes/${classId}/timetable`,
+      {
+        params: { session_id: sessionId, term_id: termId },
+      },
+    );
+
     return data;
   },
 
-  getClassTimetable: async (classId: string) => {
-    const { data } = await api.get(
-      `/school-admin/classes/${classId}/timetable`,
-    );
+  createTimetable: async (payload: any) => {
+    const { data } = await api.post("/school-admin/timetable", payload);
+
     return data;
   },
 
   deleteTimetable: async (id: string) => {
     const { data } = await api.delete(`/school-admin/timetable/${id}`);
+
     return data;
   },
 
@@ -194,6 +199,18 @@ export const SchoolAdminService = {
     end_date: string;
   }) => {
     const { data } = await api.post("/school-admin/terms", payload);
+
+    return data;
+  },
+
+  createLesson: async (payload: any) => {
+    const { data } = await api.post("/school-admin/lessons", payload);
+
+    return data;
+  },
+
+  getClassLessons: async (classId: string) => {
+    const { data } = await api.get(`/school-admin/classes/${classId}/lessons`);
 
     return data;
   },

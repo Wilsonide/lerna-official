@@ -10,10 +10,6 @@ const listItem = "flex items-start gap-3 text-black/70 leading-7";
 type Mode = "schools" | "individuals";
 
 export default function OffersPage() {
-  /**
-   * OPTIONAL: read URL safely on client only
-   * (no SSR crash, no suspense issue)
-   */
   const getInitialMode = (): Mode => {
     if (typeof window === "undefined") return "schools";
 
@@ -23,7 +19,6 @@ export default function OffersPage() {
     return mode === "individuals" ? "individuals" : "schools";
   };
 
-  // ✅ FIXED: lazy initializer removes need for useEffect (prevents setState-in-effect error)
   const [mode, setMode] = useState<Mode>(() => getInitialMode());
 
   function switchMode(newMode: Mode) {
@@ -53,7 +48,7 @@ export default function OffersPage() {
           <p className="mt-8 max-w-3xl text-lg leading-8 text-black/60">
             {mode === "schools"
               ? "From systems and staff development to digital visibility and finance, we help schools build strong institutions."
-              : "From mentorship and admissions to skills and career growth, we help individuals achieve their goals."}
+              : "From mentorship, admissions, and skills training to entrepreneurship support, we help individuals achieve clarity and growth."}
           </p>
 
           {/* TOGGLE */}
@@ -93,115 +88,149 @@ export default function OffersPage() {
           <div className="space-y-10">
             {mode === "schools" ? (
               <>
+                {/* ACCESS TO SYSTEMS */}
                 <section id="access-to-systems" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Systems</h3>
 
                   <p className="mt-5 text-black/60 leading-8">
-                    Great schools don’t succeed by chance — they succeed through
-                    structured systems. This service helps schools build
-                    operational, academic, and administrative frameworks that
-                    improve consistency, performance, and efficiency across the
-                    entire institution.
-                  </p>
-
-                  <p className="mt-4 text-black/60 leading-8">
-                    At the center is the{" "}
-                    <b>Accelerated Learners Framework (ALF)</b>, a structured
-                    teaching system that gives teachers lesson plans,
-                    instructional guides, and assessment tools that improve
-                    classroom delivery.
+                    We design structured academic and operational systems that
+                    help schools run efficiently, improve teaching quality, and
+                    maintain consistent performance across all departments.
                   </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
                     <div className={listItem}>✓ ALF teaching framework</div>
-                    <div className={listItem}>
-                      ✓ Structured lesson planning system
-                    </div>
-                    <div className={listItem}>
-                      ✓ Teacher instructional guides
-                    </div>
-                    <div className={listItem}>✓ Academic tracking systems</div>
-                    <div className={listItem}>
-                      ✓ School operations framework
-                    </div>
+                    <div className={listItem}>✓ Lesson planning systems</div>
+                    <div className={listItem}>✓ Academic tracking tools</div>
                     <div className={listItem}>
                       ✓ Staff performance monitoring
+                    </div>
+                    <div className={listItem}>
+                      ✓ School operations structure
+                    </div>
+                    <div className={listItem}>
+                      ✓ Assessment & reporting systems
                     </div>
                   </div>
                 </section>
 
+                {/* ACCESS TO RESOURCES */}
                 <section id="access-to-resources" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Resources</h3>
 
                   <p className="mt-5 text-black/60 leading-8">
-                    We provide high-quality educational resources that improve
-                    literacy, comprehension, and student engagement across all
-                    learning levels.
-                  </p>
-
-                  <p className="mt-4 text-black/60 leading-8">
-                    These resources support teachers in delivering more
-                    effective lessons and help learners build stronger academic
-                    foundations.
+                    We provide high-quality educational materials that improve
+                    learning outcomes, strengthen classroom delivery, and
+                    support both teachers and students across all levels.
                   </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
-                    <div className={listItem}>✓ Curriculum-based textbooks</div>
+                    <div className={listItem}>✓ Curriculum textbooks</div>
                     <div className={listItem}>
                       ✓ Classroom learning materials
                     </div>
-                    <div className={listItem}>✓ Literacy development tools</div>
-                    <div className={listItem}>✓ STEM resources</div>
-                    <div className={listItem}>✓ Reading culture programs</div>
+                    <div className={listItem}>✓ STEM kits and tools</div>
+                    <div className={listItem}>
+                      ✓ Literacy development resources
+                    </div>
                     <div className={listItem}>
                       ✓ Library development support
                     </div>
+                    <div className={listItem}>✓ Digital learning content</div>
+                  </div>
+
+                  {/* CTA (KEEPED AS REQUESTED) */}
+                  <div className="mt-10">
+                    <a
+                      href="https://lernabookshop.bumpa.shop/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center rounded-xl bg-brand-blue px-6 py-3 text-white font-semibold hover:opacity-90 transition"
+                    >
+                      Visit Lerna Bookshop
+                    </a>
                   </div>
                 </section>
 
+                {/* ACCESS TO FINANCE */}
                 <section id="access-to-finance" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Finance</h3>
 
                   <p className="mt-5 text-black/60 leading-8">
-                    We help schools access structured funding opportunities that
-                    support expansion, infrastructure development, and long-term
-                    sustainability.
-                  </p>
-
-                  <p className="mt-4 text-black/60 leading-8">
-                    Beyond funding, we provide advisory support to ensure
-                    financial decisions are strategic, responsible, and aligned
-                    with institutional goals.
+                    We help schools access structured funding and financial
+                    advisory systems that support expansion, sustainability, and
+                    long-term institutional growth.
                   </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
-                    <div className={listItem}>✓ School funding support</div>
+                    <div className={listItem}>✓ Funding guidance</div>
                     <div className={listItem}>✓ Expansion advisory</div>
-                    <div className={listItem}>✓ Financial planning systems</div>
-                    <div className={listItem}>✓ Sustainability strategy</div>
+                    <div className={listItem}>✓ Budget planning systems</div>
+                    <div className={listItem}>
+                      ✓ Financial sustainability strategy
+                    </div>
+                  </div>
+                </section>
+
+                {/* EXTRA */}
+                <section id="school-website-design" className={sectionCard}>
+                  <h3 className="text-3xl font-bold">School Website Design</h3>
+                  <p className="mt-5 text-black/60 leading-8">
+                    We build modern, fast, and conversion-focused school
+                    websites that improve visibility, admissions, and trust.
+                  </p>
+                </section>
+
+                <section id="social-media-management" className={sectionCard}>
+                  <h3 className="text-3xl font-bold">
+                    Social Media Management
+                  </h3>
+                  <p className="mt-5 text-black/60 leading-8">
+                    We manage structured digital communication systems that help
+                    schools build reputation, engagement, and consistent online
+                    presence.
+                  </p>
+                </section>
+
+                <section
+                  id="dedicated-supervisory-support"
+                  className={sectionCard}
+                >
+                  <h3 className="text-3xl font-bold">
+                    Dedicated Supervisory Support
+                  </h3>
+                  <p className="mt-5 text-black/60 leading-8">
+                    We provide hands-on academic supervision and quality
+                    assurance systems that improve teaching standards and school
+                    performance.
+                  </p>
+
+                  <div className="mt-8 grid md:grid-cols-2 gap-4">
+                    <div className={listItem}>✓ Academic supervision</div>
+                    <div className={listItem}>✓ Staff evaluation systems</div>
+                    <div className={listItem}>✓ Quality assurance reviews</div>
+                    <div className={listItem}>
+                      ✓ School improvement planning
+                    </div>
                   </div>
                 </section>
               </>
             ) : (
               <>
+                {/* INDIVIDUALS */}
                 <section id="career-guidance" className={sectionCard}>
                   <h3 className="text-3xl font-bold">
                     Career Guidance & Mentorship
                   </h3>
 
                   <p className="mt-5 text-black/60 leading-8">
-                    We help individuals discover their strengths, define clear
-                    career paths, and build actionable plans for personal and
+                    We help individuals discover their strengths, clarify career
+                    direction, and build actionable paths for personal and
                     professional growth.
                   </p>
 
-                  <p className="mt-4 text-black/60 leading-8">
-                    Through structured mentorship, we provide clarity,
-                    direction, and continuous support for long-term success.
-                  </p>
-
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
-                    <div className={listItem}>✓ Career path discovery</div>
+                    <div className={listItem}>✓ Career discovery sessions</div>
                     <div className={listItem}>✓ One-on-one mentorship</div>
                     <div className={listItem}>
                       ✓ Personal development planning
@@ -216,14 +245,9 @@ export default function OffersPage() {
                   </h3>
 
                   <p className="mt-5 text-black/60 leading-8">
-                    We guide individuals through the entire admission and
-                    scholarship process, making it easier to access local and
-                    international opportunities.
-                  </p>
-
-                  <p className="mt-4 text-black/60 leading-8">
-                    From applications to documentation, we ensure you are
-                    well-positioned for successful admission outcomes.
+                    We guide individuals through admission and scholarship
+                    processes, helping them prepare strong applications and
+                    documentation.
                   </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
@@ -237,50 +261,22 @@ export default function OffersPage() {
                     </div>
                   </div>
                 </section>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
 
-      {/* EXTRA SERVICES */}
-      <section className="py-28 bg-[#f8fafc]">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16">
-            {mode === "schools"
-              ? "Specialist Services"
-              : "Growth & Opportunity Services"}
-          </h2>
-
-          <div className="space-y-10">
-            {mode === "schools" ? (
-              <>
-                <section id="school-website-design" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">School Website Design</h3>
-                  <p className="mt-5 text-black/60 leading-8">
-                    We design modern school websites that improve visibility,
-                    admissions, and institutional credibility through strong
-                    digital presence.
-                  </p>
-                </section>
-
-                <section id="social-media-management" className={sectionCard}>
+                <section id="skills-development" className={sectionCard}>
                   <h3 className="text-3xl font-bold">
-                    Social Media Management
+                    Skills Development & Certifications
                   </h3>
                   <p className="mt-5 text-black/60 leading-8">
-                    We help schools build structured digital communication
-                    systems that strengthen reputation and parent engagement.
+                    Practical, job-ready skills training designed to improve
+                    employability, productivity, and career readiness.
                   </p>
                 </section>
-              </>
-            ) : (
-              <>
+
                 <section id="study-abroad-advisory" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Study Abroad Advisory</h3>
                   <p className="mt-5 text-black/60 leading-8">
-                    We guide individuals through international study
-                    opportunities, admissions, and application processes.
+                    We support international study planning, admissions, and
+                    application strategy for global opportunities.
                   </p>
                 </section>
 
@@ -290,7 +286,17 @@ export default function OffersPage() {
                   </h3>
                   <p className="mt-5 text-black/60 leading-8">
                     We equip individuals with essential digital skills needed
-                    for modern careers and entrepreneurship.
+                    for modern careers and online productivity.
+                  </p>
+                </section>
+
+                <section id="entrepreneurship-support" className={sectionCard}>
+                  <h3 className="text-3xl font-bold">
+                    Entrepreneurship Support
+                  </h3>
+                  <p className="mt-5 text-black/60 leading-8">
+                    We help individuals turn ideas into structured businesses
+                    through strategy, planning, and execution support.
                   </p>
                 </section>
               </>
