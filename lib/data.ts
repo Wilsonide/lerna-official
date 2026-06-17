@@ -78,3 +78,55 @@ export const individualExtraServices = [
     image: "https://images.unsplash.com/photo-1552664730-d307ca884978",
   },
 ];
+export const bundles = [
+  {
+    title: "StartSmart",
+    subtitle: "For schools ready to build properly from day one.",
+    price: "₦100,000",
+    save: "Save ₦100,000",
+    featured: false,
+
+    features: [
+      "School Management Platform",
+      "Accelerated Learning Framework",
+      "Staff Training Sessions",
+      "Social Media Template Pack",
+      "Onboarding Support",
+    ],
+  },
+
+  {
+    title: "Lerna Growth+",
+    subtitle: "The complete engine for schools serious about growth.",
+    price: "₦250,000",
+    save: "Save ₦140,000",
+    featured: true,
+
+    features: [
+      "Full Social Media Management",
+      "4 Staff Training Sessions",
+      "Business Plan Development",
+      "Financial Advisory",
+      "Monthly Reports",
+      "Club Integration Training",
+    ],
+  },
+
+  {
+    title: "Lerna Signature",
+    subtitle: "For schools committed to becoming the standard.",
+    price: "₦500,000",
+    save: "Save ₦300,000+",
+    featured: false,
+
+    features: [
+      "Dedicated Supervisory Specialist",
+      "Temporary Teacher Cover",
+      "Activity Week Programs",
+      "Instructional Materials",
+      "Branding Consultation",
+      "Microloan Access",
+      "Performance Audit",
+    ],
+  },
+];
