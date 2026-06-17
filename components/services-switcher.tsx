@@ -19,7 +19,6 @@ export default function ServicesSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // ✅ SAFE: initialize state from URL (no useEffect needed)
   const [mode, setMode] = useState<Mode>(() => {
     if (typeof window === "undefined") return "schools";
 
@@ -114,23 +113,35 @@ export default function ServicesSwitcher() {
             </div>
           </div>
 
-          {/* CARDS */}
-          <motion.div
-            key={mode}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 mt-16"
-          >
-            {services.map((service) => (
-              <ServicePreviewCard
-                key={service.id}
-                title={service.title}
-                image={service.image}
-                href={`/offers?mode=${mode}#${service.id}`}
-              />
-            ))}
-          </motion.div>
+          {/* ================= CARDS ================= */}
+          {mode === "schools" ? (
+            <motion.div
+              key="schools-core"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 mt-16"
+            >
+              {schoolServices.map((service) => (
+                <ServicePreviewCard
+                  key={service.id}
+                  title={service.title}
+                  image={service.image}
+                  href={`/${service.id}`}
+                />
+              ))}
+            </motion.div>
+          ) : (
+            <div className="mt-16 flex flex-col items-center justify-center text-center py-20">
+              <div className="inline-flex items-center rounded-full bg-brand-blue/10 px-5 py-2 text-sm font-semibold text-brand-blue">
+                Coming Soon
+              </div>
+
+              <p className="mt-4 text-black/60 max-w-xl">
+                This section will be available soon
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -155,22 +166,35 @@ export default function ServicesSwitcher() {
             </p>
           </div>
 
-          <motion.div
-            key={`${mode}-extra`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 mt-14"
-          >
-            {extraServices.map((service) => (
-              <ServicePreviewCard
-                key={service.id}
-                title={service.title}
-                image={service.image}
-                href={`/offers?mode=${mode}#${service.id}`}
-              />
-            ))}
-          </motion.div>
+          {/* ================= EXTRA CARDS ================= */}
+          {mode === "schools" ? (
+            <motion.div
+              key="schools-extra"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 mt-14"
+            >
+              {schoolExtraServices.map((service) => (
+                <ServicePreviewCard
+                  key={service.id}
+                  title={service.title}
+                  image={service.image}
+                  href={`/offers?mode=${mode}#${service.id}`}
+                />
+              ))}
+            </motion.div>
+          ) : (
+            <div className="mt-14 flex flex-col items-center justify-center text-center py-20 border border-black/5 rounded-3xl bg-slate-50">
+              <div className="inline-flex items-center rounded-full bg-brand-blue/10 px-5 py-2 text-sm font-semibold text-brand-blue">
+                Coming Soon
+              </div>
+
+              <p className="mt-3 text-black/60 max-w-lg">
+                This section will be available soon
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </>

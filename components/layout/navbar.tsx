@@ -26,13 +26,13 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-brand-orange border-b border-white/10 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* ================= LOGO ================= */}
-        <Link href="/" className="flex items-center gap-3 shrink-0 pr-8">
-          <div className="w-12 h-12 flex items-center justify-center">
+        <Link href="/" className="flex items-center gap-4 shrink-0 pr-8">
+          <div className="flex h-10 w-10 items-center justify-center rounded-[20px] bg-brand-orange p-2 shadow-xl ring-1 ring-white/20">
             <Image
-              src="/logo.png"
+              src="/IMG_1984.PNG"
               alt="Lerna Logo"
-              width={52}
-              height={52}
+              width={100}
+              height={100}
               className="object-contain"
               priority
             />

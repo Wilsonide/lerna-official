@@ -48,7 +48,7 @@ export default function OffersPage() {
           <p className="mt-8 max-w-3xl text-lg leading-8 text-black/60">
             {mode === "schools"
               ? "From systems and staff development to digital visibility and finance, we help schools build strong institutions."
-              : "From mentorship, admissions, and skills training to entrepreneurship support, we help individuals achieve clarity and growth."}
+              : "We are currently building new opportunities for individuals. More updates will follow soon."}
           </p>
 
           {/* TOGGLE */}
@@ -88,10 +88,10 @@ export default function OffersPage() {
           <div className="space-y-10">
             {mode === "schools" ? (
               <>
-                {/* ACCESS TO SYSTEMS */}
+                {/* ================= SCHOOL CONTENT ================= */}
+
                 <section id="access-to-systems" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Systems</h3>
-
                   <p className="mt-5 text-black/60 leading-8">
                     We design structured academic and operational systems that
                     help schools run efficiently, improve teaching quality, and
@@ -114,14 +114,12 @@ export default function OffersPage() {
                   </div>
                 </section>
 
-                {/* ACCESS TO RESOURCES */}
                 <section id="access-to-resources" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Resources</h3>
 
                   <p className="mt-5 text-black/60 leading-8">
                     We provide high-quality educational materials that improve
-                    learning outcomes, strengthen classroom delivery, and
-                    support both teachers and students across all levels.
+                    learning outcomes and strengthen classroom delivery.
                   </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
@@ -131,15 +129,10 @@ export default function OffersPage() {
                     </div>
                     <div className={listItem}>✓ STEM kits and tools</div>
                     <div className={listItem}>
-                      ✓ Literacy development resources
-                    </div>
-                    <div className={listItem}>
                       ✓ Library development support
                     </div>
-                    <div className={listItem}>✓ Digital learning content</div>
                   </div>
 
-                  {/* CTA (KEEPED AS REQUESTED) */}
                   <div className="mt-10">
                     <a
                       href="https://lernabookshop.bumpa.shop/"
@@ -152,15 +145,8 @@ export default function OffersPage() {
                   </div>
                 </section>
 
-                {/* ACCESS TO FINANCE */}
                 <section id="access-to-finance" className={sectionCard}>
                   <h3 className="text-3xl font-bold">Access to Finance</h3>
-
-                  <p className="mt-5 text-black/60 leading-8">
-                    We help schools access structured funding and financial
-                    advisory systems that support expansion, sustainability, and
-                    long-term institutional growth.
-                  </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
                     <div className={listItem}>✓ Funding guidance</div>
@@ -172,12 +158,23 @@ export default function OffersPage() {
                   </div>
                 </section>
 
-                {/* EXTRA */}
+                {/* ================= SCHOOL EXTRA SERVICES RESTORED ================= */}
+
                 <section id="school-website-design" className={sectionCard}>
                   <h3 className="text-3xl font-bold">School Website Design</h3>
+
                   <p className="mt-5 text-black/60 leading-8">
-                    We build modern, fast, and conversion-focused school
-                    websites that improve visibility, admissions, and trust.
+                    We design and develop modern, responsive, and
+                    performance-optimized school websites that strengthen
+                    institutional credibility, improve digital visibility, and
+                    support seamless communication with parents, students, and
+                    stakeholders.
+                  </p>
+
+                  <p className="mt-5 text-black/60 leading-8">
+                    Our solutions are structured to enhance admissions flow,
+                    showcase academic excellence, and position schools
+                    professionally in the digital space.
                   </p>
                 </section>
 
@@ -185,10 +182,18 @@ export default function OffersPage() {
                   <h3 className="text-3xl font-bold">
                     Social Media Management
                   </h3>
+
                   <p className="mt-5 text-black/60 leading-8">
-                    We manage structured digital communication systems that help
-                    schools build reputation, engagement, and consistent online
-                    presence.
+                    We manage structured digital communication systems that
+                    strengthen school branding, engagement, and online presence
+                    across major social platforms.
+                  </p>
+
+                  <p className="mt-5 text-black/60 leading-8">
+                    This includes content planning, visual storytelling,
+                    audience engagement, and consistent brand positioning to
+                    help schools build trust and remain visible in a competitive
+                    educational environment.
                   </p>
                 </section>
 
@@ -199,107 +204,58 @@ export default function OffersPage() {
                   <h3 className="text-3xl font-bold">
                     Dedicated Supervisory Support
                   </h3>
+
                   <p className="mt-5 text-black/60 leading-8">
-                    We provide hands-on academic supervision and quality
-                    assurance systems that improve teaching standards and school
+                    We provide academic supervision and quality assurance
+                    systems that improve teaching standards, ensure consistency
+                    across classrooms, and strengthen overall school
                     performance.
+                  </p>
+
+                  <p className="mt-5 text-black/60 leading-8">
+                    Our support framework helps school leadership maintain
+                    accountability, improve instructional delivery, and
+                    implement continuous improvement strategies.
                   </p>
 
                   <div className="mt-8 grid md:grid-cols-2 gap-4">
                     <div className={listItem}>✓ Academic supervision</div>
-                    <div className={listItem}>✓ Staff evaluation systems</div>
+                    <div className={listItem}>✓ Staff monitoring</div>
                     <div className={listItem}>✓ Quality assurance reviews</div>
                     <div className={listItem}>
                       ✓ School improvement planning
+                    </div>
+                    <div className={listItem}>
+                      ✓ Teaching performance evaluation
+                    </div>
+                    <div className={listItem}>
+                      ✓ Operational compliance checks
                     </div>
                   </div>
                 </section>
               </>
             ) : (
-              <>
-                {/* INDIVIDUALS */}
-                <section id="career-guidance" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">
-                    Career Guidance & Mentorship
-                  </h3>
-
-                  <p className="mt-5 text-black/60 leading-8">
-                    We help individuals discover their strengths, clarify career
-                    direction, and build actionable paths for personal and
-                    professional growth.
-                  </p>
-
-                  <div className="mt-8 grid md:grid-cols-2 gap-4">
-                    <div className={listItem}>✓ Career discovery sessions</div>
-                    <div className={listItem}>✓ One-on-one mentorship</div>
-                    <div className={listItem}>
-                      ✓ Personal development planning
-                    </div>
-                    <div className={listItem}>✓ Goal-setting frameworks</div>
+              /* ================= INDIVIDUALS - COMING SOON ================= */
+              <section className={sectionCard}>
+                <div className="text-center py-20">
+                  <div className="mx-auto mb-6 w-16 h-16 rounded-full bg-black/5 flex items-center justify-center">
+                    <span className="text-2xl">🚧</span>
                   </div>
-                </section>
 
-                <section id="scholarship-support" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">
-                    Scholarship & Admission Support
+                  <h3 className="text-3xl md:text-4xl font-bold">
+                    Coming Soon
                   </h3>
 
-                  <p className="mt-5 text-black/60 leading-8">
-                    We guide individuals through admission and scholarship
-                    processes, helping them prepare strong applications and
-                    documentation.
+                  <p className="mt-5 text-black/60 leading-8 max-w-2xl mx-auto">
+                    We are actively developing ways to better partner with,
+                    support, and empower individuals.
                   </p>
 
-                  <div className="mt-8 grid md:grid-cols-2 gap-4">
-                    <div className={listItem}>✓ University applications</div>
-                    <div className={listItem}>✓ Scholarship guidance</div>
-                    <div className={listItem}>
-                      ✓ Admission strategy planning
-                    </div>
-                    <div className={listItem}>
-                      ✓ Document preparation support
-                    </div>
+                  <div className="mt-10 inline-flex items-center rounded-full border px-6 py-2 text-sm text-black/60">
+                    Stay tuned for updates
                   </div>
-                </section>
-
-                <section id="skills-development" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">
-                    Skills Development & Certifications
-                  </h3>
-                  <p className="mt-5 text-black/60 leading-8">
-                    Practical, job-ready skills training designed to improve
-                    employability, productivity, and career readiness.
-                  </p>
-                </section>
-
-                <section id="study-abroad-advisory" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">Study Abroad Advisory</h3>
-                  <p className="mt-5 text-black/60 leading-8">
-                    We support international study planning, admissions, and
-                    application strategy for global opportunities.
-                  </p>
-                </section>
-
-                <section id="digital-literacy" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">
-                    Digital Literacy Training
-                  </h3>
-                  <p className="mt-5 text-black/60 leading-8">
-                    We equip individuals with essential digital skills needed
-                    for modern careers and online productivity.
-                  </p>
-                </section>
-
-                <section id="entrepreneurship-support" className={sectionCard}>
-                  <h3 className="text-3xl font-bold">
-                    Entrepreneurship Support
-                  </h3>
-                  <p className="mt-5 text-black/60 leading-8">
-                    We help individuals turn ideas into structured businesses
-                    through strategy, planning, and execution support.
-                  </p>
-                </section>
-              </>
+                </div>
+              </section>
             )}
           </div>
         </div>

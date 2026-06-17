@@ -28,7 +28,8 @@ export const schoolExtraServices = [
   {
     id: "social-media-management",
     title: "Social Media Management",
-    image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113",
+    image:
+      "https://images.unsplash.com/photo-1611926653458-09294b3142bf?auto=format&fit=crop&w=1200&q=80",
   },
 
   {
