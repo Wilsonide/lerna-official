@@ -39,21 +39,21 @@ export default function Footer() {
 
               <div className="flex items-center gap-4">
                 <a
-                  href="https://facebook.com"
+                  href="https://facebook.com/share/18mANDvABy/?mibextid=wwXlfr"
                   className="h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-blue transition"
                 >
                   <FaFacebook size={18} />
                 </a>
 
                 <a
-                  href="https://instagram.com"
+                  href="https://instagram.com/lerna.ng?igsh=OTlzaGp2NzM1cnU4&utm_source=qr"
                   className="h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-orange transition"
                 >
                   <FaInstagram size={18} />
                 </a>
 
                 <a
-                  href="https://linkedin.com"
+                  href="https://linkedin.com/company/lerna-ng/"
                   className="h-11 w-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-blue transition"
                 >
                   <FaLinkedin size={18} />
