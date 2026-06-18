@@ -26,30 +26,32 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-brand-orange border-b border-white/10 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* ================= LOGO ================= */}
-        <Link href="/" className="flex items-center gap-4 shrink-0 pr-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-[20px] bg-brand-orange p-2 shadow-xl ring-1 ring-white/20">
+        <Link href="/" className="flex items-center gap-3 shrink-0">
+          {/* Logo */}
+          <div className="relative h-11 w-11 shrink-0 flex items-center justify-center">
             <Image
-              src="/IMG_1984.PNG"
+              src="/logolerna.png"
               alt="Lerna Logo"
-              width={100}
-              height={100}
-              className="object-contain"
+              fill
               priority
+              className="object-contain"
             />
           </div>
 
-          <div className="flex flex-col leading-none">
-            <span className="font-bold text-xl tracking-wide text-white">
+          {/* Brand */}
+          <div className="flex flex-col justify-center leading-none -mt-px">
+            <span className="text-2xl font-semibold tracking-tight text-white">
               LERNA
             </span>
-            <span className="text-[10px] tracking-[0.25em] text-white/60 uppercase mt-1">
+
+            <span className="text-[12px] uppercase tracking-[0.28em] text-white/60 mt-0.5">
               Educational Hub
             </span>
           </div>
         </Link>
 
         {/* ================= DESKTOP NAV ================= */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-10 pl-8">
           <Link href="/" className={linkClass("/")}>
             Home
           </Link>
@@ -65,6 +67,7 @@ export default function Navbar() {
           <Link href="/blogs" className={linkClass("/blogs")}>
             Blogs
           </Link>
+
           <Link
             href="/schools"
             onClick={closeMenu}
@@ -72,30 +75,29 @@ export default function Navbar() {
           >
             Register School
           </Link>
-          {/* ================= ADMIN ACCESS ================= */}
 
+          {/* ================= ADMIN ACCESS ================= */}
           {user?.role === "SUPER_ADMIN" && (
             <Link
               href="/admin"
-              className={`relative px-4 py-1.5 rounded-full text-sm font-semibold transition 
-      bg-white text-brand-orange shadow-md hover:scale-105
-      after:content-[''] after:absolute after:-right-1 after:-top-1 
-      after:w-2 after:h-2 after:bg-green-400 after:rounded-full after:animate-pulse
-    `}
+              className="relative px-4 py-1.5 rounded-full text-sm font-semibold transition 
+              bg-white text-brand-orange shadow-md hover:scale-105
+              after:content-[''] after:absolute after:-right-1 after:-top-1 
+              after:w-2 after:h-2 after:bg-green-400 after:rounded-full after:animate-pulse"
             >
               🛠 Super Admin
               <span className="ml-2 text-xs opacity-70">Manage System</span>
             </Link>
           )}
+
           {user?.role === "SCHOOL_ADMIN" && (
             <Link
               href="/school-admin"
-              className={`relative px-4 py-1.5 rounded-full text-sm font-semibold transition 
-      bg-white/10 text-white border border-white/20
-      hover:bg-white hover:text-brand-orange hover:scale-105
-      after:content-[''] after:absolute after:-right-1 after:-top-1 
-      after:w-2 after:h-2 after:bg-blue-400 after:rounded-full after:animate-pulse
-    `}
+              className="relative px-4 py-1.5 rounded-full text-sm font-semibold transition 
+              bg-white/10 text-white border border-white/20
+              hover:bg-white hover:text-brand-orange hover:scale-105
+              after:content-[''] after:absolute after:-right-1 after:-top-1 
+              after:w-2 after:h-2 after:bg-blue-400 after:rounded-full after:animate-pulse"
             >
               🎓 School Admin
               <span className="ml-2 text-xs opacity-70">Manage School</span>
@@ -128,6 +130,7 @@ export default function Navbar() {
             <Link href="/" onClick={closeMenu} className={linkClass("/")}>
               Home
             </Link>
+
             <Link
               href="/pricing"
               onClick={closeMenu}
@@ -135,6 +138,7 @@ export default function Navbar() {
             >
               Packages
             </Link>
+
             <Link
               href="/offers"
               onClick={closeMenu}
@@ -142,6 +146,7 @@ export default function Navbar() {
             >
               Services
             </Link>
+
             <Link
               href="/about"
               onClick={closeMenu}
@@ -149,6 +154,7 @@ export default function Navbar() {
             >
               About Us
             </Link>
+
             <Link
               href="/blogs"
               onClick={closeMenu}
@@ -156,6 +162,7 @@ export default function Navbar() {
             >
               Blogs
             </Link>
+
             <Link
               href="/schools"
               onClick={closeMenu}
@@ -170,7 +177,7 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className="px-4 py-2 rounded-lg bg-white text-brand-orange font-semibold flex items-center gap-2"
               >
-                🛠 Super Admin{" "}
+                🛠 Super Admin
                 <span className="text-xs opacity-60">Manage System</span>
               </Link>
             )}
@@ -181,7 +188,7 @@ export default function Navbar() {
                 onClick={closeMenu}
                 className="px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 flex items-center gap-2"
               >
-                🎓 School Admin{" "}
+                🎓 School Admin
                 <span className="text-xs opacity-60">Manage School</span>
               </Link>
             )}
