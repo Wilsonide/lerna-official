@@ -105,7 +105,7 @@ export default function Footer() {
 
               <div className="flex lg:justify-end items-center gap-3 text-white/80">
                 <Mail size={18} />
-                <span>hello@lerna.education</span>
+                <span>info@lerna.ng</span>
               </div>
             </div>
 
