@@ -30,7 +30,7 @@ export default function Navbar() {
           {/* Logo */}
           <div className="relative h-11 w-11 shrink-0 flex items-center justify-center">
             <Image
-              src="/logolerna.png"
+              src="/logo.png"
               alt="Lerna Logo"
               fill
               priority
