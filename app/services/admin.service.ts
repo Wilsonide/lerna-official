@@ -4,17 +4,20 @@ import { api } from "@/lib/api";
 
 export const AdminService = {
   // ==========================================
-  // DASHBOARD STATS
+  // DASHBOARD
   // ==========================================
+
   getStats: async () => {
     const { data } = await api.get("/admin/stats");
-
     return data;
   },
 
+  // ==========================================
+  // ADMINS
+  // ==========================================
+
   getAdmins: async () => {
     const { data } = await api.get("/admin/admins");
-
     return data;
   },
 
@@ -29,15 +32,13 @@ export const AdminService = {
 
     return data;
   },
+
   deleteAdmin: async (userId: string) => {
     const { data } = await api.delete(`/admin/admins/${userId}`);
 
     return data;
   },
 
-  // ==========================================
-  // ASSIGN SCHOOL ADMIN
-  // ==========================================
   assignSchoolAdmin: async (userId: string, schoolId: string) => {
     const { data } = await api.post(
       `/admin/users/${userId}/assign-school-admin/${schoolId}`,
@@ -45,10 +46,6 @@ export const AdminService = {
 
     return data;
   },
-
-  // ==========================================
-  // REVOKE SCHOOL ADMIN
-  // ==========================================
 
   revokeSchoolAdmin: async (userId: string) => {
     const { data } = await api.post(
@@ -59,58 +56,87 @@ export const AdminService = {
   },
 
   // ==========================================
-  // GET ALL USERS
+  // USERS
   // ==========================================
+
   getUsers: async () => {
     const { data } = await api.get("/users");
-
     return data;
   },
 
-  // ==========================================
-  // GET SINGLE USER
-  // ==========================================
   getUser: async (userId: string) => {
     const { data } = await api.get(`/users/${userId}`);
-
     return data;
   },
 
-  // ==========================================
-  // DELETE USER
-  // ==========================================
   deleteUser: async (userId: string) => {
     const { data } = await api.delete(`/users/${userId}`);
-
     return data;
   },
-  // ==========================================
-  // SCHOOL MANAGEMENT (delegating to SchoolService for now)
-  // ==========================================
 
   // ==========================================
-  // GET ALL SCHOOLS
+  // SCHOOLS
   // ==========================================
+
   getSchools: async () => {
-    const { data } = await api.get("/schools");
+    const { data } = await api.get("/admin/schools");
     return data;
   },
-
-  // ==========================================
-  // CREATE SCHOOL
-  // ==========================================
 
   createSchool: async (payload: any) => {
-    const { data } = await api.post("/schools", payload);
+    const { data } = await api.post("/admin/schools", payload);
+
+    return data;
+  },
+
+  /**
+   * Backend route:
+   * DELETE /admin/{school_id}
+   */
+  deleteSchool: async (schoolId: string) => {
+    const { data } = await api.delete(`/admin/schools/${schoolId}`);
+
     return data;
   },
 
   // ==========================================
-  // DELETE SCHOOL
+  // LESSONS
   // ==========================================
 
-  deleteSchool: async (schoolId: string) => {
-    const { data } = await api.delete(`/schools/${schoolId}`);
+  createLesson: async (payload: any) => {
+    const { data } = await api.post("/admin/lessons", payload);
+
+    return data;
+  },
+
+  updateLesson: async (lessonId: string, payload: any) => {
+    const { data } = await api.patch(`/admin/lessons/${lessonId}`, payload);
+
+    return data;
+  },
+
+  getLessons: async () => {
+    const { data } = await api.get("/admin/lessons");
+
+    return data;
+  },
+
+  getLesson: async (lessonId: string) => {
+    const { data } = await api.get(`/admin/lessons/${lessonId}`);
+
+    return data;
+  },
+
+  searchLessons: async (params: {
+    class_name: string;
+    subject_name: string;
+    session_name: string;
+    term_name: string;
+  }) => {
+    const { data } = await api.get("/admin/lessons/search", {
+      params,
+    });
+
     return data;
   },
 };

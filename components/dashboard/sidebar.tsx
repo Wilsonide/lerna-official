@@ -18,6 +18,12 @@ import {
   LucideIcon,
   FileText,
   PlusCircle,
+  FileBarChart,
+  CalendarRange,
+  ClipboardCheck,
+  CalendarDays,
+  Calendar,
+  BarChart3,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -29,7 +35,23 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (path: string) => pathname === path;
+  const dashboardRoutes = [
+    "/student",
+    "/teacher",
+    "/parent",
+    "/school-admin",
+    "/admin",
+  ];
+
+  const isActive = (href: string) => {
+    // Dashboard links must match exactly
+    if (dashboardRoutes.includes(href)) {
+      return pathname === href;
+    }
+
+    // Other links support nested routes
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const baseLink =
     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition";
@@ -41,32 +63,124 @@ export default function Sidebar() {
     { label: string; href: string; icon: LucideIcon }[]
   > = {
     STUDENT: [
-      { label: "Dashboard", href: "/student", icon: LayoutDashboard },
-      { label: "Courses", href: "/student/courses", icon: BookOpen },
-      { label: "Results", href: "/student/results", icon: GraduationCap },
+      {
+        label: "Dashboard",
+        href: "/student",
+        icon: LayoutDashboard,
+      },
+
+      {
+        label: "Attendance",
+        href: "/student/attendance",
+        icon: Users,
+      },
+
+      {
+        label: "Results",
+        href: "/student/results",
+        icon: GraduationCap,
+      },
+      { label: "Profile", href: "/student/profile", icon: Settings },
     ],
 
     TEACHER: [
-      { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
-      { label: "Classes", href: "/teacher/classes", icon: BookOpen },
-      { label: "Grades", href: "/teacher/grades", icon: GraduationCap },
+      {
+        label: "Dashboard",
+        href: "/teacher",
+        icon: LayoutDashboard,
+      },
+
+      {
+        label: "Classes",
+        href: "/teacher/classes",
+        icon: School,
+      },
+
+      {
+        label: "Lessons",
+        href: "/teacher/lessons",
+        icon: BookOpen,
+      },
+
+      {
+        label: "Attendance",
+        href: "/teacher/attendance",
+        icon: Users,
+      },
+
+      {
+        label: "Results",
+        href: "/teacher/results",
+        icon: GraduationCap,
+      },
+
+      {
+        label: "Profile",
+        href: "/teacher/profile",
+        icon: Settings,
+      },
     ],
 
     PARENT: [
       { label: "Dashboard", href: "/parent", icon: LayoutDashboard },
       { label: "Children", href: "/parent/children", icon: Users },
+      { label: "Profile", href: "/school-admin/profile", icon: Settings },
     ],
 
     SCHOOL_ADMIN: [
-      { label: "Dashboard", href: "/school-admin", icon: LayoutDashboard },
-      { label: "Students", href: "/school-admin/students", icon: Users },
+      {
+        label: "Dashboard",
+        href: "/school-admin",
+        icon: LayoutDashboard,
+      },
+
+      {
+        label: "Classes",
+        href: "/school-admin/classes",
+        icon: School,
+      },
+
+      {
+        label: "Students",
+        href: "/school-admin/students",
+        icon: GraduationCap,
+      },
+
       {
         label: "Teachers",
         href: "/school-admin/teachers",
-        icon: GraduationCap,
+        icon: Users,
       },
-      { label: "Classes", href: "/school-admin/classes", icon: School },
-      { label: "Settings", href: "/school-admin/settings", icon: Settings },
+
+      {
+        label: "Subjects",
+        href: "/school-admin/subjects",
+        icon: BookOpen,
+      },
+
+      {
+        label: "Attendance",
+        href: "/school-admin/attendance",
+        icon: ClipboardCheck,
+      },
+
+      {
+        label: "Results",
+        href: "/school-admin/results",
+        icon: BarChart3,
+      },
+
+      {
+        label: "Sessions",
+        href: "/school-admin/sessions",
+        icon: Calendar,
+      },
+
+      {
+        label: "Terms",
+        href: "/school-admin/terms",
+        icon: CalendarDays,
+      },
     ],
 
     SUPER_ADMIN: [
@@ -76,6 +190,7 @@ export default function Sidebar() {
       { label: "Users", href: "/admin/users", icon: Users },
       { label: "Create Blogs", href: "/admin/blogs/create", icon: PlusCircle },
       { label: "View Blogs", href: "/admin/blogs", icon: FileText },
+      { label: "Lesson Notes", href: "/admin/lessons", icon: Settings },
       { label: "Settings", href: "/admin/settings", icon: Settings },
     ],
   };

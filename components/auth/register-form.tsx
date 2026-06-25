@@ -46,6 +46,10 @@ export default function RegisterForm() {
       setAccessToken(result.access_token);
 
       toast.success("Account created successfully");
+      if (!result.user.profile_completed) {
+        router.replace("/complete-profile");
+        return;
+      }
 
       switch (result.user.role) {
         case "STUDENT":
