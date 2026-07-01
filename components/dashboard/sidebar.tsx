@@ -24,6 +24,7 @@ import {
   CalendarDays,
   Calendar,
   BarChart3,
+  UserPlus,
 } from "lucide-react";
 
 type NavItem = {
@@ -198,6 +199,11 @@ export default function Sidebar() {
         label: "Settings",
         href: "/school-admin/settings",
         icon: Settings,
+      },
+      {
+        label: "Registrationss",
+        href: "/school-admin/registrations",
+        icon: UserPlus,
       },
     ],
 
