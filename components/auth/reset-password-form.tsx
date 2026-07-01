@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { AuthService } from "@/app/services/auth.service";
+
+import AuthLayout from "./auth-layout";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Props = {
   token: string;
@@ -14,12 +22,22 @@ export default function ResetPasswordForm({ token }: Props) {
   const router = useRouter();
 
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function submit() {
     try {
+      setError("");
+
       if (!token) {
-        toast.error("Invalid reset link");
+        setError("Invalid password reset link.");
+        return;
+      }
+
+      if (!password) {
+        setError("Please enter a new password.");
         return;
       }
 
@@ -27,44 +45,85 @@ export default function ResetPasswordForm({ token }: Props) {
 
       await AuthService.resetPassword(token, password);
 
-      toast.success("Password reset successful");
+      toast.success("Password reset successfully");
 
-      router.push("/login");
+      router.replace("/login");
     } catch {
-      toast.error("Invalid or expired token");
+      setError("Invalid or expired password reset link.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-6">
-      <div className="w-full max-w-md rounded-2xl border bg-white p-8 shadow-sm">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold">Reset Password</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter your new password below
-          </p>
-        </div>
+    <AuthLayout>
+      <div className="mx-auto w-full max-w-lg">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl lg:p-10">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Reset Password
+            </h1>
 
-        <div className="space-y-4">
-          <input
-            type="password"
-            placeholder="New Password"
-            className="w-full rounded-lg border p-3 outline-none focus:ring-2 focus:ring-brand-blue"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <p className="mt-2 text-slate-500">
+              Enter a new password for your account.
+            </p>
+          </div>
 
-          <button
-            onClick={submit}
-            disabled={loading || !token}
-            className="w-full rounded-lg bg-brand-blue p-3 text-white transition hover:bg-brand-blue/90 disabled:opacity-50"
-          >
-            {loading ? "Resetting Password..." : "Reset Password"}
-          </button>
+          {/* Error */}
+          {error && (
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-5">
+            {/* Password */}
+            <div className="space-y-2">
+              <Label htmlFor="password">New Password</Label>
+
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 rounded-xl pr-12"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <Button
+              onClick={submit}
+              disabled={loading || !token}
+              className="mt-2 h-12 w-full rounded-xl bg-brand-blue text-base font-semibold hover:bg-brand-blue/90"
+            >
+              {loading ? "Resetting Password..." : "Reset Password"}
+            </Button>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 border-t pt-6 text-center text-sm text-slate-600">
+            Remember your password?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-brand-blue transition hover:underline"
+            >
+              Back to Sign In
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 }

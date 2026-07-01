@@ -2,16 +2,18 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { AuthService } from "@/app/services/auth.service";
 import { useAuthStore } from "@/app/store/auth-store";
 
+import AuthLayout from "./auth-layout";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -27,8 +29,8 @@ export default function RegisterForm() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function submit() {
     try {
@@ -46,6 +48,7 @@ export default function RegisterForm() {
       setAccessToken(result.access_token);
 
       toast.success("Account created successfully");
+
       if (!result.user.profile_completed) {
         router.replace("/complete-profile");
         return;
@@ -55,18 +58,23 @@ export default function RegisterForm() {
         case "STUDENT":
           router.push("/student");
           break;
+
         case "TEACHER":
           router.push("/teacher");
           break;
+
         case "PARENT":
           router.push("/parent");
           break;
+
         case "SCHOOL_ADMIN":
           router.push("/school-admin");
           break;
+
         case "SUPER_ADMIN":
           router.push("/admin");
           break;
+
         default:
           router.push("/");
       }
@@ -85,84 +93,117 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-6">
-      <Card className="w-full max-w-md shadow-xl border-0">
-        <CardContent className="p-8 space-y-6">
-          {/* HEADER */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold">Create Account</h1>
-            <p className="text-muted-foreground">Join your school on LERNA</p>
+    <AuthLayout>
+      <div className="mx-auto w-full max-w-lg">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl lg:p-10">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Create Account
+            </h1>
+
+            <p className="mt-2 text-slate-500">
+              Create your school portal account to continue.
+            </p>
           </div>
 
-          {/* INFO */}
-          <div className="rounded-lg border bg-blue-50 border-blue-200 p-3 text-sm text-blue-700">
-            Username format:{" "}
-            <span className="font-semibold">schoolSlug_username</span>
-            <br />
-            Example: <span className="font-mono">lerna_john</span>
+          {/* Username Hint */}
+          <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+            <p className="text-sm font-medium text-blue-700">Username Format</p>
+
+            <p className="mt-1 font-semibold text-blue-900">
+              schoolSlug_username
+            </p>
+
+            <p className="mt-2 text-sm text-blue-600">
+              Example:
+              <span className="ml-1 rounded bg-white px-2 py-1 font-mono">
+                lerna_john
+              </span>
+            </p>
           </div>
 
-          {/* ERROR */}
+          {/* Error */}
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
-          {/* USERNAME */}
-          <div className="space-y-2">
-            <Label>Username</Label>
-            <Input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="lerna_john"
-            />
-          </div>
+          <div className="space-y-5">
+            {/* Username */}
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
 
-          {/* EMAIL */}
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@school.com"
-            />
-          </div>
-
-          {/* PASSWORD WITH TOGGLE */}
-          <div className="space-y-2">
-            <Label>Password</Label>
-
-            <div className="relative">
               <Input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="pr-10"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="lerna_john"
+                className="h-12 rounded-xl"
               />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
             </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="john@example.com"
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="h-12 rounded-xl pr-12"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-700"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Register Button */}
+            <Button
+              onClick={submit}
+              disabled={loading}
+              className="mt-2 h-12 w-full rounded-xl bg-brand-blue text-base font-semibold hover:bg-brand-blue/90"
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+            </Button>
           </div>
 
-          {/* BUTTON */}
-          <Button
-            onClick={submit}
-            disabled={loading}
-            className="w-full bg-brand-blue hover:bg-brand-blue/90"
-          >
-            {loading ? "Creating Account..." : "Create Account"}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+          {/* Footer */}
+          <div className="mt-8 border-t pt-6 text-center text-sm text-slate-600">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-brand-blue transition hover:underline"
+            >
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </div>
+    </AuthLayout>
   );
 }

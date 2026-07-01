@@ -59,7 +59,6 @@ export const StudentService = {
         term_id: termId,
       },
     });
-
     return data;
   },
 
@@ -73,7 +72,6 @@ export const StudentService = {
         term_id: termId,
       },
     });
-
     return data;
   },
   getDashboard: async () => {

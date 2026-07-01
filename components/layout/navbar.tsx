@@ -123,14 +123,6 @@ export default function Navbar() {
             Blogs
           </Link>
 
-          <Link
-            href="/schools"
-            onClick={closeMenu}
-            className={linkClass("/schools")}
-          >
-            Register School
-          </Link>
-
           {/* ================= ADMIN ACCESS ================= */}
           {dashboardLink && (
             <Link
@@ -202,14 +194,6 @@ export default function Navbar() {
               className={linkClass("/blogs")}
             >
               Blogs
-            </Link>
-
-            <Link
-              href="/schools"
-              onClick={closeMenu}
-              className={linkClass("/schools")}
-            >
-              Register School
             </Link>
 
             {dashboardLink && (

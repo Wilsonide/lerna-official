@@ -3,67 +3,62 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
-
-import Link from "next/link";
-
 import { toast } from "sonner";
-
-import { Users, UserX, Clock3, TrendingUp, BarChart3 } from "lucide-react";
+import { Users, UserX, Clock3, TrendingUp, CalendarDays } from "lucide-react";
 
 import { SchoolAdminService } from "@/app/services/school-admin.service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 
 export default function AttendanceDashboardPage() {
   const today = new Date().toISOString().split("T")[0];
 
   const [date, setDate] = useState(today);
-
   const [loading, setLoading] = useState(true);
-
   const [dashboard, setDashboard] = useState<any>(null);
 
-  const loadDashboard = async () => {
+  async function loadDashboard() {
     try {
       setLoading(true);
 
       const response = await SchoolAdminService.getAttendanceDashboard(date);
 
       setDashboard(response);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
 
-      toast.error("Failed to load attendance dashboard");
+      toast.error("Failed to load attendance dashboard.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     void Promise.resolve().then(() => loadDashboard());
   }, []);
 
-  const present = dashboard?.present ?? dashboard?.attendance?.present ?? 0;
+  const present = dashboard?.present ?? 0;
+  const absent = dashboard?.absent ?? 0;
+  const late = dashboard?.late ?? 0;
 
-  const absent = dashboard?.absent ?? dashboard?.attendance?.absent ?? 0;
+  const totalStudents = dashboard?.total_students ?? 0;
 
-  const late = dashboard?.late ?? dashboard?.attendance?.late ?? 0;
-
-  const total = present + absent + late;
-
-  const percentage = total === 0 ? 0 : Math.round((present / total) * 100);
+  const attendanceRate = dashboard?.attendance_rate ?? 0;
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
+      {/* HEADER */}
+
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Attendance Dashboard</h1>
 
-          <p className="text-muted-foreground">Daily attendance overview</p>
+          <p className="mt-1 text-muted-foreground">
+            School attendance overview
+          </p>
         </div>
 
         <div className="flex gap-3">
@@ -85,11 +80,25 @@ export default function AttendanceDashboardPage() {
         </Card>
       ) : (
         <>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {/* SUMMARY */}
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
             <Card>
               <CardContent className="flex items-center justify-between p-6">
                 <div>
-                  <p className="text-muted-foreground text-sm">Present</p>
+                  <p className="text-sm text-muted-foreground">Students</p>
+
+                  <h2 className="mt-2 text-3xl font-bold">{totalStudents}</h2>
+                </div>
+
+                <Users className="h-8 w-8 text-blue-600" />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="flex items-center justify-between p-6">
+                <div>
+                  <p className="text-sm text-muted-foreground">Present</p>
 
                   <h2 className="mt-2 text-3xl font-bold">{present}</h2>
                 </div>
@@ -101,7 +110,7 @@ export default function AttendanceDashboardPage() {
             <Card>
               <CardContent className="flex items-center justify-between p-6">
                 <div>
-                  <p className="text-muted-foreground text-sm">Absent</p>
+                  <p className="text-sm text-muted-foreground">Absent</p>
 
                   <h2 className="mt-2 text-3xl font-bold">{absent}</h2>
                 </div>
@@ -113,7 +122,7 @@ export default function AttendanceDashboardPage() {
             <Card>
               <CardContent className="flex items-center justify-between p-6">
                 <div>
-                  <p className="text-muted-foreground text-sm">Late</p>
+                  <p className="text-sm text-muted-foreground">Late</p>
 
                   <h2 className="mt-2 text-3xl font-bold">{late}</h2>
                 </div>
@@ -125,95 +134,86 @@ export default function AttendanceDashboardPage() {
             <Card>
               <CardContent className="flex items-center justify-between p-6">
                 <div>
-                  <p className="text-muted-foreground text-sm">Attendance %</p>
+                  <p className="text-sm text-muted-foreground">Attendance</p>
 
-                  <h2 className="mt-2 text-3xl font-bold">{percentage}%</h2>
+                  <h2 className="mt-2 text-3xl font-bold">{attendanceRate}%</h2>
                 </div>
 
-                <TrendingUp className="h-8 w-8 text-blue-600" />
+                <TrendingUp className="h-8 w-8 text-emerald-600" />
               </CardContent>
             </Card>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-3">
-            <Card className="xl:col-span-2">
-              <CardHeader>
-                <CardTitle>Class Attendance Ranking</CardTitle>
-              </CardHeader>
+          {/* CLASS RANKINGS */}
 
-              <CardContent>
-                {dashboard?.class_rankings?.length ? (
-                  <div className="overflow-auto rounded-lg border">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted">
-                        <tr>
-                          <th className="p-3 text-left">Class</th>
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-2">
+              <CalendarDays className="h-5 w-5" />
 
-                          <th className="p-3 text-left">Present</th>
+              <CardTitle>Class Attendance Ranking</CardTitle>
+            </CardHeader>
 
-                          <th className="p-3 text-left">Absent</th>
+            <CardContent>
+              {dashboard?.class_rankings?.length ? (
+                <div className="overflow-hidden rounded-xl border">
+                  <table className="w-full">
+                    <thead className="bg-muted">
+                      <tr className="text-left">
+                        <th className="px-4 py-3">#</th>
 
-                          <th className="p-3 text-left">%</th>
-                        </tr>
-                      </thead>
+                        <th className="px-4 py-3">Class</th>
 
-                      <tbody>
-                        {dashboard.class_rankings.map(
-                          (row: any, index: number) => (
-                            <tr
-                              key={row.class_id || index}
-                              className="border-t"
-                            >
-                              <td className="p-3">{row.class_name}</td>
+                        <th className="px-4 py-3 text-center">Present</th>
 
-                              <td className="p-3">{row.present}</td>
+                        <th className="px-4 py-3 text-center">Absent</th>
 
-                              <td className="p-3">{row.absent}</td>
+                        <th className="px-4 py-3 text-center">Late</th>
 
-                              <td className="p-3">
-                                {row.attendance_percentage}%
-                              </td>
-                            </tr>
-                          ),
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-muted-foreground py-10 text-center">
-                    No ranking data available
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                        <th className="px-4 py-3 text-center">%</th>
+                      </tr>
+                    </thead>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
+                    <tbody>
+                      {dashboard.class_rankings.map(
+                        (row: any, index: number) => (
+                          <tr
+                            key={row.class_id}
+                            className="border-t hover:bg-muted/40"
+                          >
+                            <td className="px-4 py-3 font-semibold">
+                              {index + 1}
+                            </td>
 
-              <CardContent className="space-y-3">
-                <Link href="/school-admin/attendance/analytics">
-                  <Button className="w-full justify-start">
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    Attendance Analytics
-                  </Button>
-                </Link>
+                            <td className="px-4 py-3">{row.class_name}</td>
 
-                <Link href="/school-admin/classes">
-                  <Button variant="outline" className="w-full justify-start">
-                    Class Attendance
-                  </Button>
-                </Link>
+                            <td className="px-4 py-3 text-center">
+                              {row.present}
+                            </td>
 
-                <Link href="/school-admin/students">
-                  <Button variant="outline" className="w-full justify-start">
-                    Student Attendance
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
+                            <td className="px-4 py-3 text-center">
+                              {row.absent}
+                            </td>
+
+                            <td className="px-4 py-3 text-center">
+                              {row.late}
+                            </td>
+
+                            <td className="px-4 py-3 text-center font-semibold">
+                              {row.attendance_percentage}%
+                            </td>
+                          </tr>
+                        ),
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="py-10 text-center text-muted-foreground">
+                  No attendance records found for this date.
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
     </div>

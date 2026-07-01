@@ -31,28 +31,44 @@ interface Student {
   email: string;
 }
 
+type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
+
 export default function TeacherAttendancePage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
 
   const [selectedClass, setSelectedClass] = useState("");
+  const [attendanceExists, setAttendanceExists] = useState(false);
 
   const [attendanceDate, setAttendanceDate] = useState(
     new Date().toISOString().split("T")[0],
   );
 
-  const [statuses, setStatuses] = useState<
-    Record<string, "PRESENT" | "ABSENT" | "LATE">
-  >({});
+  const [statuses, setStatuses] = useState<Record<string, AttendanceStatus>>(
+    {},
+  );
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const loadClasses = async () => {
     try {
+      setLoading(true);
+
       const data = await teacherService.getClasses();
 
-      setClasses(data.classes || []);
+      const classList: ClassItem[] = data.classes ?? [];
+
+      setClasses(classList);
+
+      if (classList.length > 0) {
+        setSelectedClass(classList[0].id);
+
+        // Immediately load the first class
+        await loadStudents(classList[0].id);
+      } else {
+        setStudents([]);
+      }
     } catch {
       toast.error("Failed to load classes");
     } finally {
@@ -60,21 +76,46 @@ export default function TeacherAttendancePage() {
     }
   };
 
+  const loadAttendance = async (
+    classId: string,
+    date: string,
+    studentList: Student[],
+  ) => {
+    const defaults: Record<string, AttendanceStatus> = {};
+
+    studentList.forEach((student) => {
+      defaults[student.id] = "PRESENT";
+    });
+
+    try {
+      const data = await teacherService.getClassAttendance(classId, date);
+
+      data.records.forEach((record: any) => {
+        defaults[record.student_id] = record.status;
+      });
+
+      setStatuses(defaults);
+      setAttendanceExists(true);
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setStatuses(defaults);
+        setAttendanceExists(false);
+        return;
+      }
+
+      toast.error("Failed to load attendance.");
+    }
+  };
+
   const loadStudents = async (classId: string) => {
     try {
       const data = await teacherService.getStudents(classId);
 
-      const list = data.students || [];
+      const list: Student[] = data.students ?? [];
 
       setStudents(list);
 
-      const defaultStatus: Record<string, "PRESENT" | "ABSENT" | "LATE"> = {};
-
-      list.forEach((student: Student) => {
-        defaultStatus[student.id] = "PRESENT";
-      });
-
-      setStatuses(defaultStatus);
+      await loadAttendance(classId, attendanceDate, list);
     } catch {
       toast.error("Failed to load students");
     }
@@ -85,15 +126,13 @@ export default function TeacherAttendancePage() {
   }, []);
 
   useEffect(() => {
-    if (selectedClass) {
-      void Promise.resolve().then(() => loadStudents(selectedClass));
-    }
-  }, [selectedClass]);
+    if (!selectedClass) return;
+    if (students.length === 0) return;
 
-  const updateStatus = (
-    studentId: string,
-    status: "PRESENT" | "ABSENT" | "LATE",
-  ) => {
+    void Promise.resolve().then(() => loadStudents(selectedClass));
+  }, [attendanceDate]);
+
+  const updateStatus = (studentId: string, status: AttendanceStatus) => {
     setStatuses((prev) => ({
       ...prev,
       [studentId]: status,
@@ -101,28 +140,26 @@ export default function TeacherAttendancePage() {
   };
 
   const presentCount = useMemo(
-    () =>
-      Object.values(statuses).filter((status) => status === "PRESENT").length,
+    () => Object.values(statuses).filter((x) => x === "PRESENT").length,
     [statuses],
   );
 
   const absentCount = useMemo(
-    () =>
-      Object.values(statuses).filter((status) => status === "ABSENT").length,
+    () => Object.values(statuses).filter((x) => x === "ABSENT").length,
     [statuses],
   );
 
   const lateCount = useMemo(
-    () => Object.values(statuses).filter((status) => status === "LATE").length,
+    () => Object.values(statuses).filter((x) => x === "LATE").length,
     [statuses],
   );
 
-  const formattedDate = new Date(attendanceDate).toLocaleDateString("en-US", {
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
-    year: "numeric",
     month: "long",
     day: "numeric",
-  });
+    year: "numeric",
+  }).format(new Date(`${attendanceDate}T00:00:00`));
 
   const submitAttendance = async () => {
     if (!selectedClass) {
@@ -132,22 +169,28 @@ export default function TeacherAttendancePage() {
 
     try {
       setSubmitting(true);
+      const wasExistingAttendance = attendanceExists;
 
       const response = await teacherService.submitAttendance({
         class_id: selectedClass,
         attendance_date: attendanceDate,
         students: students.map((student) => ({
           student_id: student.id,
-          status: statuses[student.id] || "present",
+          status: statuses[student.id] ?? "PRESENT",
         })),
       });
 
       toast.success(
-        `${response.present_count} Present • ${response.absent_count} Absent • ${response.late_count} Late`,
+        wasExistingAttendance
+          ? `Attendance updated • ${response.present_count} Present, ${response.absent_count} Absent, ${response.late_count} Late`
+          : `Attendance recorded • ${response.present_count} Present, ${response.absent_count} Absent, ${response.late_count} Late`,
       );
+
+      await loadAttendance(selectedClass, attendanceDate, students);
     } catch (err: any) {
       console.log(err.response?.data);
-      toast.error("Failed to submit attendance");
+
+      toast.error(err.response?.data?.detail ?? "Failed to submit attendance");
     } finally {
       setSubmitting(false);
     }
@@ -155,12 +198,18 @@ export default function TeacherAttendancePage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-8">
-      <div>
+      <div className="flex items-center gap-3">
         <h1 className="text-3xl font-bold">Class Attendance</h1>
 
-        <p className="text-muted-foreground mt-1">
-          Record and manage daily student attendance.
-        </p>
+        {attendanceExists ? (
+          <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+            Attendance already marked for today
+          </span>
+        ) : (
+          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+            Mark today attendance
+          </span>
+        )}
       </div>
 
       <Card>
@@ -203,7 +252,7 @@ export default function TeacherAttendancePage() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarDays className="h-4 w-4" />
             {formattedDate}
           </div>
@@ -214,9 +263,11 @@ export default function TeacherAttendancePage() {
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
-              <Users className="h-8 w-8" />
+              <Users className="h-8 w-8 text-blue-600" />
+
               <div>
-                <p className="text-muted-foreground text-sm">Total Students</p>
+                <p className="text-muted-foreground text-sm">Students</p>
+
                 <p className="text-2xl font-bold">{students.length}</p>
               </div>
             </CardContent>
@@ -225,9 +276,13 @@ export default function TeacherAttendancePage() {
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
               <CheckCircle2 className="h-8 w-8 text-green-600" />
+
               <div>
                 <p className="text-muted-foreground text-sm">Present</p>
-                <p className="text-2xl font-bold">{presentCount}</p>
+
+                <p className="text-2xl font-bold text-green-600">
+                  {presentCount}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -235,9 +290,11 @@ export default function TeacherAttendancePage() {
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
               <XCircle className="h-8 w-8 text-red-600" />
+
               <div>
                 <p className="text-muted-foreground text-sm">Absent</p>
-                <p className="text-2xl font-bold">{absentCount}</p>
+
+                <p className="text-2xl font-bold text-red-600">{absentCount}</p>
               </div>
             </CardContent>
           </Card>
@@ -245,9 +302,11 @@ export default function TeacherAttendancePage() {
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
               <Clock3 className="h-8 w-8 text-amber-600" />
+
               <div>
                 <p className="text-muted-foreground text-sm">Late</p>
-                <p className="text-2xl font-bold">{lateCount}</p>
+
+                <p className="text-2xl font-bold text-amber-600">{lateCount}</p>
               </div>
             </CardContent>
           </Card>
@@ -256,15 +315,15 @@ export default function TeacherAttendancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Student Register</CardTitle>
+          <CardTitle>Student Attendance Register</CardTitle>
         </CardHeader>
 
         <CardContent>
           {loading ? (
-            <div className="py-10 text-center">Loading students...</div>
+            <div className="py-12 text-center">Loading students...</div>
           ) : students.length === 0 ? (
-            <div className="text-muted-foreground py-10 text-center">
-              Select a class to begin attendance marking.
+            <div className="text-muted-foreground py-12 text-center">
+              Select a class to begin.
             </div>
           ) : (
             <>
@@ -273,41 +332,53 @@ export default function TeacherAttendancePage() {
                   <thead className="bg-muted">
                     <tr>
                       <th className="p-4 text-left">Student</th>
+
                       <th className="p-4 text-left">Email</th>
-                      <th className="p-4 text-left">Attendance Status</th>
+
+                      <th className="p-4 text-center">Attendance</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {students.map((student) => (
+                    {students.map((student, index) => (
                       <tr
                         key={student.id}
-                        className="border-t hover:bg-muted/30"
+                        className={`border-t ${
+                          index % 2 === 0 ? "bg-background" : "bg-muted/20"
+                        }`}
                       >
-                        <td className="p-4 font-medium">
-                          {student.first_name} {student.last_name}
+                        <td className="p-4">
+                          <div className="font-medium">
+                            {student.first_name} {student.last_name}
+                          </div>
                         </td>
 
                         <td className="p-4 text-muted-foreground">
                           {student.email}
                         </td>
 
-                        <td className="p-4">
+                        <td className="p-4 text-center">
                           <select
                             value={statuses[student.id]}
                             onChange={(e) =>
                               updateStatus(
                                 student.id,
-                                e.target.value as "PRESENT" | "ABSENT" | "LATE",
+                                e.target.value as AttendanceStatus,
                               )
                             }
-                            className="border-input bg-background rounded-md border px-3 py-2"
+                            className={`rounded-md border px-3 py-2 font-medium ${
+                              statuses[student.id] === "PRESENT"
+                                ? "border-green-300 bg-green-50 text-green-700"
+                                : statuses[student.id] === "ABSENT"
+                                  ? "border-red-300 bg-red-50 text-red-700"
+                                  : "border-amber-300 bg-amber-50 text-amber-700"
+                            }`}
                           >
-                            <option value="present">✅ Present</option>
+                            <option value="PRESENT">✅ Present</option>
 
-                            <option value="absent">❌ Absent</option>
+                            <option value="ABSENT">❌ Absent</option>
 
-                            <option value="late">⏰ Late</option>
+                            <option value="LATE">⏰ Late</option>
                           </select>
                         </td>
                       </tr>
@@ -316,15 +387,19 @@ export default function TeacherAttendancePage() {
                 </table>
               </div>
 
-              <div className="sticky bottom-0 mt-6 flex justify-end bg-background pt-4">
+              <div className="sticky bottom-0 mt-6 flex justify-end border-t bg-background pt-5">
                 <Button
                   size="lg"
                   disabled={submitting}
                   onClick={submitAttendance}
                 >
                   {submitting
-                    ? "Submitting Attendance..."
-                    : "Submit Attendance"}
+                    ? attendanceExists
+                      ? "Updating Attendance..."
+                      : "Recording Attendance..."
+                    : attendanceExists
+                      ? "Update Attendance"
+                      : "Mark Attendance"}
                 </Button>
               </div>
             </>

@@ -8,7 +8,6 @@ import { StudentService } from "@/app/services/student.service";
 import { AcademicService } from "@/app/services/academic.service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 
 import {
@@ -21,44 +20,42 @@ import {
 } from "@/components/ui/table";
 
 import { Badge } from "@/components/ui/badge";
-
 import { Download } from "lucide-react";
 
-type ResultRecord = {
+type SubjectResult = {
   subject_name: string;
   ca_score: number;
   exam_score: number;
   total_score: number;
   grade: string;
+  remark?: string;
   teacher_comment?: string;
 };
 
 type ResultResponse = {
   student_name: string;
-
   class_name: string;
-
   session_name: string;
-
   term_name: string;
 
+  total_score: number;
   average_score: number;
-
   position: number | null;
 
-  results: ResultRecord[];
+  passed_subjects: number;
+  failed_subjects: number;
+
+  subjects: SubjectResult[];
 };
 
 export default function StudentResultsPage() {
   const [loading, setLoading] = useState(true);
-
   const [downloading, setDownloading] = useState(false);
 
   const [data, setData] = useState<ResultResponse | null>(null);
 
-  const [sessionId, setSessionId] = useState<string>("");
-
-  const [termId, setTermId] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [termId, setTermId] = useState<string | null>(null);
 
   async function load() {
     try {
@@ -66,7 +63,10 @@ export default function StudentResultsPage() {
 
       const active = await AcademicService.getActive();
 
-      if (!active?.session || !active?.term) {
+      if (!active?.session?.id || !active?.term?.id) {
+        setData(null);
+        setSessionId(null);
+        setTermId(null);
         return;
       }
 
@@ -78,18 +78,20 @@ export default function StudentResultsPage() {
         active.term.id,
       );
 
-      setData(results);
+      setData(results ?? null);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load results:", error);
+      setData(null);
     } finally {
       setLoading(false);
     }
   }
 
   async function downloadReportCard() {
+    if (!sessionId || !termId) return;
+
     try {
       setDownloading(true);
-
       await StudentService.downloadReportCard(sessionId, termId);
     } catch (error) {
       console.error(error);
@@ -99,11 +101,7 @@ export default function StudentResultsPage() {
   }
 
   useEffect(() => {
-    const fetchResults = async () => {
-      await load();
-    };
-
-    void fetchResults();
+    void Promise.resolve().then(() => load());
   }, []);
 
   if (loading) {
@@ -112,28 +110,43 @@ export default function StudentResultsPage() {
 
   return (
     <div className="space-y-6 p-6">
+      {/* HEADER */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Results</h1>
-
-          <p className="text-muted-foreground">View academic performance</p>
+          <h1 className="text-3xl font-bold">
+            {data?.student_name || "Results"}
+          </h1>
+          <p className="text-muted-foreground">
+            {data?.class_name} • {data?.session_name} • {data?.term_name}
+          </p>
         </div>
 
-        <Button onClick={downloadReportCard} disabled={downloading}>
+        <Button
+          onClick={downloadReportCard}
+          disabled={downloading || !sessionId || !termId}
+        >
           <Download className="mr-2 h-4 w-4" />
-
           {downloading ? "Downloading..." : "Download Report Card"}
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* SUMMARY */}
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader>
-            <CardTitle>Average Score</CardTitle>
+            <CardTitle>Average</CardTitle>
           </CardHeader>
+          <CardContent className="text-3xl font-bold">
+            {data?.average_score ?? 0}
+          </CardContent>
+        </Card>
 
-          <CardContent>
-            <div className="text-3xl font-bold">{data?.average_score ?? 0}</div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Total</CardTitle>
+          </CardHeader>
+          <CardContent className="text-3xl font-bold">
+            {data?.total_score ?? 0}
           </CardContent>
         </Card>
 
@@ -141,28 +154,34 @@ export default function StudentResultsPage() {
           <CardHeader>
             <CardTitle>Position</CardTitle>
           </CardHeader>
-
-          <CardContent>
-            <div className="text-3xl font-bold">{data?.position || "-"}</div>
+          <CardContent className="text-3xl font-bold">
+            {data?.position ?? "-"}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Subjects</CardTitle>
+            <CardTitle>Passed</CardTitle>
           </CardHeader>
+          <CardContent className="text-3xl font-bold text-green-600">
+            {data?.passed_subjects ?? 0}
+          </CardContent>
+        </Card>
 
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {data?.results?.length || 0}
-            </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Failed</CardTitle>
+          </CardHeader>
+          <CardContent className="text-3xl font-bold text-red-600">
+            {data?.failed_subjects ?? 0}
           </CardContent>
         </Card>
       </div>
 
+      {/* TABLE */}
       <Card>
         <CardHeader>
-          <CardTitle>Subject Results</CardTitle>
+          <CardTitle>Subject Breakdown</CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -170,37 +189,45 @@ export default function StudentResultsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Subject</TableHead>
-
                 <TableHead>CA</TableHead>
-
                 <TableHead>Exam</TableHead>
-
                 <TableHead>Total</TableHead>
-
                 <TableHead>Grade</TableHead>
-
-                <TableHead>Comment</TableHead>
+                <TableHead>Remark</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {data?.results?.map((result, index) => (
-                <TableRow key={index}>
-                  <TableCell>{result.subject_name}</TableCell>
+              {data?.subjects?.length ? (
+                data.subjects.map((subject, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">
+                      {subject.subject_name}
+                    </TableCell>
 
-                  <TableCell>{result.ca_score}</TableCell>
+                    <TableCell>{subject.ca_score}</TableCell>
+                    <TableCell>{subject.exam_score}</TableCell>
 
-                  <TableCell>{result.exam_score}</TableCell>
+                    <TableCell className="font-semibold">
+                      {subject.total_score}
+                    </TableCell>
 
-                  <TableCell>{result.total_score}</TableCell>
+                    <TableCell>
+                      <Badge>{subject.grade}</Badge>
+                    </TableCell>
 
-                  <TableCell>
-                    <Badge>{result.grade}</Badge>
+                    <TableCell>
+                      {subject.remark || subject.teacher_comment || "-"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
+                    No subject results available
                   </TableCell>
-
-                  <TableCell>{result.teacher_comment || "-"}</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>

@@ -26,6 +26,16 @@ import {
   BarChart3,
 } from "lucide-react";
 
+type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  children?: {
+    label: string;
+    href: string;
+  }[];
+};
+
 export default function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const role = user?.role;
@@ -58,10 +68,7 @@ export default function Sidebar() {
   const active = "bg-black text-white";
   const inactive = "text-gray-600 hover:bg-gray-100";
 
-  const navItems: Record<
-    string,
-    { label: string; href: string; icon: LucideIcon }[]
-  > = {
+  const navItems: Record<string, NavItem[]> = {
     STUDENT: [
       {
         label: "Dashboard",
@@ -112,6 +119,12 @@ export default function Sidebar() {
         label: "Results",
         href: "/teacher/results",
         icon: GraduationCap,
+        children: [
+          {
+            label: "View Results",
+            href: "/teacher/results",
+          },
+        ],
       },
 
       {
@@ -180,6 +193,11 @@ export default function Sidebar() {
         label: "Terms",
         href: "/school-admin/terms",
         icon: CalendarDays,
+      },
+      {
+        label: "Settings",
+        href: "/school-admin/settings",
+        icon: Settings,
       },
     ],
 
@@ -251,18 +269,40 @@ export default function Sidebar() {
           {items.map((item) => {
             const Icon = item.icon;
 
+            const parentActive =
+              isActive(item.href) ||
+              item.children?.some((child) => isActive(child.href));
+
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`${baseLink} ${
-                  isActive(item.href) ? active : inactive
-                }`}
-                onClick={() => setMobileOpen(false)}
-              >
-                <Icon size={18} />
-                {!collapsed && <span>{item.label}</span>}
-              </Link>
+              <div key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`${baseLink} ${parentActive ? active : inactive}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <Icon size={18} />
+                  {!collapsed && <span>{item.label}</span>}
+                </Link>
+
+                {!collapsed && item.children && parentActive && (
+                  <div className="ml-8 mt-1 space-y-1 border-l border-gray-200 pl-3">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`block rounded-md px-3 py-2 text-sm transition ${
+                          isActive(child.href)
+                            ? "bg-gray-100 font-medium text-black"
+                            : "text-gray-500 hover:bg-gray-50"
+                        }`}
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>

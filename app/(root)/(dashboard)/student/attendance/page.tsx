@@ -11,7 +11,6 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import {
   Table,
   TableBody,
@@ -25,19 +24,16 @@ import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/app/store/auth-store";
 
 type AttendanceRecord = {
-  attendance_date: string;
+  date: string;
   status: "PRESENT" | "ABSENT" | "LATE";
-  note?: string | null;
 };
 
 export default function StudentAttendancePage() {
   const isLoadingAuth = useAuthStore((s) => s.isLoading);
-
   const accessToken = useAuthStore((s) => s.accessToken);
+
   const [loading, setLoading] = useState(true);
-
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
-
   const [summary, setSummary] = useState<any>(null);
 
   useEffect(() => {
@@ -49,66 +45,52 @@ export default function StudentAttendancePage() {
 
         if (!active?.session || !active?.term) {
           setRecords([]);
+          setSummary(null);
           return;
         }
 
         const [attendanceData, summaryData] = await Promise.all([
           StudentService.getAttendance(active.session.id, active.term.id),
-
           StudentService.getAttendanceSummary(
             active.session.id,
             active.term.id,
           ),
         ]);
 
-        console.log("Student attendance response:", attendanceData);
-
-        // Handle all possible response shapes
-        let attendanceRecords: AttendanceRecord[] = [];
-
-        if (Array.isArray(attendanceData)) {
-          attendanceRecords = attendanceData;
-        } else if (attendanceData && Array.isArray(attendanceData.records)) {
-          attendanceRecords = attendanceData.records;
-        } else if (attendanceData && Array.isArray(attendanceData.data)) {
-          attendanceRecords = attendanceData.data;
-        }
+        const attendanceRecords: AttendanceRecord[] =
+          attendanceData?.records ?? [];
 
         setRecords(attendanceRecords);
-        setSummary(summaryData || {});
+        setSummary(summaryData || null);
       } catch (error) {
-        console.error("Failed to load attendance:", error);
-
+        console.error(error);
         setRecords([]);
-        setSummary({});
+        setSummary(null);
       } finally {
         setLoading(false);
       }
     }
 
     if (isLoadingAuth) return;
-
     if (!accessToken) return;
 
     loadAttendance();
   }, [isLoadingAuth, accessToken]);
 
-  if (loading) {
-    return <DashboardSkeleton />;
-  }
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-6 p-6 md:p-8">
       <DashboardHeader title="Attendance" />
 
+      {/* SUMMARY */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle>Present</CardTitle>
           </CardHeader>
-
-          <CardContent>
-            <div className="text-3xl font-bold">{summary?.present ?? 0}</div>
+          <CardContent className="text-3xl font-bold">
+            {summary?.present ?? 0}
           </CardContent>
         </Card>
 
@@ -116,9 +98,8 @@ export default function StudentAttendancePage() {
           <CardHeader>
             <CardTitle>Absent</CardTitle>
           </CardHeader>
-
-          <CardContent>
-            <div className="text-3xl font-bold">{summary?.absent ?? 0}</div>
+          <CardContent className="text-3xl font-bold">
+            {summary?.absent ?? 0}
           </CardContent>
         </Card>
 
@@ -126,25 +107,22 @@ export default function StudentAttendancePage() {
           <CardHeader>
             <CardTitle>Late</CardTitle>
           </CardHeader>
-
-          <CardContent>
-            <div className="text-3xl font-bold">{summary?.late ?? 0}</div>
+          <CardContent className="text-3xl font-bold">
+            {summary?.late ?? 0}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Attendance Rate</CardTitle>
+            <CardTitle>Rate</CardTitle>
           </CardHeader>
-
-          <CardContent>
-            <div className="text-3xl font-bold">
-              {summary?.attendance_rate ?? 0}%
-            </div>
+          <CardContent className="text-3xl font-bold">
+            {summary?.attendance_rate ?? 0}%
           </CardContent>
         </Card>
       </div>
 
+      {/* HISTORY */}
       <Card>
         <CardHeader>
           <CardTitle>Attendance History</CardTitle>
@@ -156,14 +134,13 @@ export default function StudentAttendancePage() {
               <TableRow>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Note</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {!Array.isArray(records) || records.length === 0 ? (
+              {records.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center">
+                  <TableCell colSpan={2} className="text-center">
                     No attendance records found
                   </TableCell>
                 </TableRow>
@@ -171,8 +148,8 @@ export default function StudentAttendancePage() {
                 records.map((record, index) => (
                   <TableRow key={index}>
                     <TableCell>
-                      {record?.attendance_date
-                        ? new Date(record.attendance_date).toLocaleDateString()
+                      {record.date
+                        ? new Date(record.date).toLocaleDateString()
                         : "-"}
                     </TableCell>
 
@@ -189,8 +166,6 @@ export default function StudentAttendancePage() {
                         {record.status}
                       </Badge>
                     </TableCell>
-
-                    <TableCell>{record.note || "-"}</TableCell>
                   </TableRow>
                 ))
               )}

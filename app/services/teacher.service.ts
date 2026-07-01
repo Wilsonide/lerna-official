@@ -1,6 +1,74 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 
+export interface UpdateResultRecordPayload {
+  ca_score: number;
+  exam_score: number;
+  teacher_comment?: string;
+}
+
+export interface EditableResultResponse {
+  batch_id: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  editable: boolean;
+
+  students: {
+    subjects: any;
+    student_id: string;
+    student_name: string;
+
+    records: {
+      record_id: string;
+      subject_id: string;
+      subject_name: string;
+      ca_score: number;
+      exam_score: number;
+      total_score: number;
+      teacher_comment?: string;
+    }[];
+  }[];
+}
+
+export interface ResubmitBatchResponse {
+  batch_id: string;
+  status: string;
+  message: string;
+}
+
 export type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
+
+export interface ResultBatch {
+  id: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  created_at: string;
+  updated_at: string;
+}
+export interface ResultStatusResponse {
+  exists: boolean;
+  editable?: boolean;
+  status?: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  batch_id?: string;
+}
+export interface EditableSubjectScore {
+  subject_id: string;
+  ca_score: number;
+  exam_score: number;
+  teacher_comment?: string;
+}
+
+export interface EditableStudentResult {
+  student_id: string;
+  scores: EditableSubjectScore[];
+}
+
+export interface EditableBatchResponse {
+  batch_id: string;
+  class_id: string;
+  session_id: string;
+  term_id: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  students: EditableStudentResult[];
+}
 
 export interface Lesson {
   id: string;
@@ -66,15 +134,44 @@ export interface StudentResultInput {
 
 export interface ResultBatchCreate {
   class_id: string;
-  session_id: string;
-  term_id: string;
+
   students: StudentResultInput[];
 }
 
 export interface ResultSubmissionResponse {
-  sheet_id: string;
-  total_students: number;
-  total_records: number;
+  created: boolean;
+  batch_id: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  message: string;
+}
+export interface SubjectResult {
+  record_id: string;
+
+  subject_id: string;
+  subject_name: string;
+
+  ca_score: number;
+  exam_score: number;
+  total_score: number;
+
+  grade: string;
+  remark: string;
+
+  teacher_comment?: string;
+}
+export interface StudentResult {
+  student_id: string;
+  student_name: string;
+
+  total_score: number;
+  average_score: number;
+
+  position: number;
+
+  passed_subjects: number;
+  failed_subjects: number;
+
+  subjects: SubjectResult[];
 }
 
 export interface UpdateTeacherComment {
@@ -82,44 +179,25 @@ export interface UpdateTeacherComment {
 }
 
 export interface ClassResultResponse {
-  sheet_id: string;
+  batch_id: string;
 
   class_id: string;
-  class_name: string;
 
   session_id: string;
-  session_name: string;
 
   term_id: string;
-  term_name: string;
 
-  is_approved: boolean;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
 
-  results: {
-    student_id: string;
-    student_name: string;
+  editable: boolean;
 
-    subject_id: string;
-    subject_name: string;
-
-    ca_score: number;
-    exam_score: number;
-    total_score: number;
-
-    grade: string;
-    teacher_comment?: string;
-  }[];
-
-  positions: {
-    student_id: string;
-    student_name: string;
-
-    total_score: number;
-    average_score: number;
-    position: number;
-  }[];
+  students: StudentResult[];
 }
-
+export interface UpdateResultRecordPayload {
+  ca_score: number;
+  exam_score: number;
+  teacher_comment?: string;
+}
 class TeacherService {
   // ====================================
   // LESSONS
@@ -138,6 +216,11 @@ class TeacherService {
     return data;
   }
 
+  async getActiveAcademic() {
+    const { data } = await api.get("/academic/active");
+    return data;
+  }
+
   // ====================================
   // ATTENDANCE
   // ====================================
@@ -150,17 +233,10 @@ class TeacherService {
     return data;
   }
 
-  async getClassAttendance(
-    classId: string,
-    sessionId: string,
-    termId: string,
-    attendanceDate: string,
-  ) {
+  async getClassAttendance(classId: string, attendanceDate: string) {
     const { data } = await api.get("/teacher/attendance/class", {
       params: {
         class_id: classId,
-        session_id: sessionId,
-        term_id: termId,
         attendance_date: attendanceDate,
       },
     });
@@ -172,10 +248,61 @@ class TeacherService {
   // RESULTS
   // ====================================
 
+  async saveDraft(
+    payload: ResultBatchCreate,
+  ): Promise<ResultSubmissionResponse> {
+    const { data } = await api.post("/teacher/results/draft", payload);
+
+    return data;
+  }
+
   async submitResults(
     payload: ResultBatchCreate,
   ): Promise<ResultSubmissionResponse> {
-    const { data } = await api.post("/teacher/results", payload);
+    const { data } = await api.post("/teacher/results/submit", payload);
+
+    return data;
+  }
+
+  async updateBatch(
+    batchId: string,
+    payload: ResultBatchCreate,
+  ): Promise<ResultSubmissionResponse> {
+    const { data } = await api.put(`/teacher/results/${batchId}`, payload);
+
+    return data;
+  }
+
+  async getBatch(batchId: string): Promise<EditableBatchResponse> {
+    const { data } = await api.get(`/teacher/results/${batchId}`);
+
+    return data;
+  }
+
+  async viewBatch(batchId: string): Promise<ClassResultResponse> {
+    const { data } = await api.get(`/teacher/results/${batchId}/view`);
+
+    return data;
+  }
+
+  async getClassBatches(classId: string): Promise<ResultBatch[]> {
+    const { data } = await api.get(`/teacher/results/class/${classId}/batches`);
+
+    return data;
+  }
+
+  async getClassResults(params: {
+    classId: string;
+    sessionId?: string;
+    termId?: string;
+  }): Promise<ClassResultResponse> {
+    const { data } = await api.get("/teacher/results/class", {
+      params: {
+        class_id: params.classId,
+        session_id: params.sessionId,
+        term_id: params.termId,
+      },
+    });
 
     return data;
   }
@@ -191,16 +318,12 @@ class TeacherService {
     return data;
   }
 
-  async getClassResults(
-    classId: string,
-    sessionId: string,
-    termId: string,
-  ): Promise<ClassResultResponse> {
-    const { data } = await api.get("/teacher/results/class", {
+  async getResultStatus(params: {
+    classId: string;
+  }): Promise<ResultStatusResponse> {
+    const { data } = await api.get("/teacher/results/status", {
       params: {
-        class_id: classId,
-        session_id: sessionId,
-        term_id: termId,
+        class_id: params.classId,
       },
     });
 
@@ -233,6 +356,36 @@ class TeacherService {
     const { data } = await api.get("/teacher/dashboard");
     return data;
   }
+
+  // =========================
+  // RESULT EDITING
+  // =========================
+
+  getEditableResults = async (
+    classId: string,
+  ): Promise<EditableResultResponse> => {
+    const { data } = await api.get(`/teacher/results/${classId}/editable`);
+
+    return data;
+  };
+
+  updateResultRecord = async (
+    recordId: string,
+    payload: UpdateResultRecordPayload,
+  ): Promise<{ message: string }> => {
+    const { data } = await api.patch(
+      `/teacher/results/records/${recordId}`,
+      payload,
+    );
+
+    return data;
+  };
+
+  resubmitResults = async (batchId: string): Promise<ResubmitBatchResponse> => {
+    const { data } = await api.post(`/teacher/results/${batchId}/resubmit`);
+
+    return data;
+  };
 }
 
 export const teacherService = new TeacherService();

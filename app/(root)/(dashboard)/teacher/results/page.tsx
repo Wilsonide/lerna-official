@@ -1,426 +1,244 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import {
+  GraduationCap,
+  ClipboardCheck,
+  BookOpen,
+  Loader2,
+  Eye,
+  Pencil,
+  FilePlus2,
+} from "lucide-react";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+  teacherService,
+  ResultStatusResponse,
+} from "@/app/services/teacher.service";
 
-import { toast } from "sonner";
-
-import { teacherService } from "@/app/services/teacher.service";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { Button } from "@/components/ui/button";
-
-import { Input } from "@/components/ui/input";
-
-interface SchoolClass {
+type ClassItem = {
   id: string;
   name: string;
-}
+};
 
-interface Student {
-  id: string;
-  first_name?: string;
-  last_name?: string;
-}
+type DashboardClass = ClassItem & {
+  result?: ResultStatusResponse;
+};
 
-interface Subject {
-  id: string;
-  name: string;
-}
-
-export default function TeacherResultsPage() {
+export default function ResultsDashboardPage() {
+  const [classes, setClasses] = useState<DashboardClass[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
-  const [classes, setClasses] = useState<SchoolClass[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-
-  const [selectedClass, setSelectedClass] = useState("");
   const [sessionId, setSessionId] = useState("");
   const [termId, setTermId] = useState("");
 
-  const [scores, setScores] = useState<
-    Record<
-      string,
-      Record<
-        string,
-        {
-          ca_score: number;
-          exam_score: number;
-          teacher_comment: string;
-        }
-      >
-    >
-  >({});
-
-  const [resultView, setResultView] = useState<any>(null);
-
-  const loadClasses = async () => {
+  async function loadDashboard() {
     try {
-      const response = await teacherService.getClasses();
+      setLoading(true);
 
-      setClasses(response?.classes ?? response?.data ?? response ?? []);
-    } catch {
-      toast.error("Failed to load classes");
+      const dashboard = await teacherService.getDashboard();
+
+      setSessionId(dashboard.active_session?.id ?? "");
+      setTermId(dashboard.active_term?.id ?? "");
+
+      const assignedClasses: ClassItem[] = dashboard.classes ?? [];
+
+      const enriched = await Promise.all(
+        assignedClasses.map(async (cls) => {
+          try {
+            const result = await teacherService.getResultStatus({
+              classId: cls.id,
+            });
+
+            return {
+              ...cls,
+              result,
+            };
+          } catch {
+            return {
+              ...cls,
+              result: {
+                exists: false,
+              },
+            };
+          }
+        }),
+      );
+
+      setClasses(enriched);
     } finally {
       setLoading(false);
     }
-  };
-
-  const loadClassData = async (classId: string) => {
-    try {
-      const [studentsRes, subjectsRes] = await Promise.all([
-        teacherService.getStudents(classId),
-        teacherService.getSubjects(classId),
-      ]);
-
-      setStudents(studentsRes?.students ?? studentsRes ?? []);
-
-      setSubjects(subjectsRes?.subjects ?? subjectsRes ?? []);
-    } catch {
-      toast.error("Failed to load class data");
-    }
-  };
+  }
 
   useEffect(() => {
-    Promise.resolve().then(() => loadClasses());
+    void Promise.resolve().then(loadDashboard);
   }, []);
 
-  useEffect(() => {
-    if (selectedClass) {
-      Promise.resolve().then(() => loadClassData(selectedClass));
+  function badge(status?: string) {
+    switch (status) {
+      case "APPROVED":
+        return (
+          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+            Approved
+          </span>
+        );
+
+      case "SUBMITTED":
+        return (
+          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+            Submitted
+          </span>
+        );
+
+      case "REJECTED":
+        return (
+          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+            Rejected
+          </span>
+        );
+
+      case "PUBLISHED":
+        return (
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+            Published
+          </span>
+        );
+
+      case "DRAFT":
+        return (
+          <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+            Draft
+          </span>
+        );
+
+      default:
+        return (
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+            No Submission
+          </span>
+        );
     }
-  }, [selectedClass]);
+  }
 
-  const updateScore = (
-    studentId: string,
-    subjectId: string,
-    field: string,
-    value: string,
-  ) => {
-    setScores((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...(prev[studentId] || {}),
-        [subjectId]: {
-          ...(prev[studentId]?.[subjectId] || {
-            ca_score: 0,
-            exam_score: 0,
-            teacher_comment: "",
-          }),
-          [field]: field === "teacher_comment" ? value : Number(value),
-        },
-      },
-    }));
-  };
+  function actionButton(item: DashboardClass) {
+    const status = item.result?.status;
 
-  const submitResults = async () => {
-    if (!selectedClass) {
-      toast.error("Select class");
-      return;
-    }
-
-    if (!sessionId || !termId) {
-      toast.error("Session ID and Term ID are required");
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-
-      const payload = {
-        class_id: selectedClass,
-        session_id: sessionId,
-        term_id: termId,
-        students: students.map((student) => ({
-          student_id: student.id,
-
-          scores: subjects.map((subject) => ({
-            subject_id: subject.id,
-
-            ca_score: scores?.[student.id]?.[subject.id]?.ca_score ?? 0,
-
-            exam_score: scores?.[student.id]?.[subject.id]?.exam_score ?? 0,
-
-            teacher_comment:
-              scores?.[student.id]?.[subject.id]?.teacher_comment ?? "",
-          })),
-        })),
-      };
-
-      await teacherService.submitResults(payload);
-
-      toast.success("Results submitted successfully");
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to submit results");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const loadResults = async () => {
-    if (!selectedClass || !sessionId || !termId) return;
-
-    try {
-      const data = await teacherService.getClassResults(
-        selectedClass,
-        sessionId,
-        termId,
+    if (!item.result?.exists || status === "DRAFT") {
+      return (
+        <Link
+          href={`/teacher/results/create/${item.id}`}
+          className="inline-flex items-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+        >
+          <FilePlus2 className="mr-2 h-4 w-4" />
+          Enter Results
+        </Link>
       );
-
-      setResultView(data);
-    } catch {
-      toast.error("Failed to load results");
     }
-  };
 
-  const positions = useMemo(() => resultView?.positions ?? [], [resultView]);
+    if (status === "REJECTED") {
+      return (
+        <Link
+          href={`/teacher/results/edit/${item.id}?sessionId=${sessionId}&termId=${termId}`}
+          className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+        >
+          <Pencil className="mr-2 h-4 w-4" />
+          Edit Batch
+        </Link>
+      );
+    }
+
+    return (
+      <Link
+        href={`/teacher/results/${item.id}?sessionId=${sessionId}&termId=${termId}`}
+        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+      >
+        <Eye className="mr-2 h-4 w-4" />
+        View Results
+      </Link>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-72 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
+    <div className="space-y-8 p-6">
       <div>
         <h1 className="text-3xl font-bold">Results Management</h1>
 
-        <p className="text-muted-foreground">
-          Enter and manage student results
+        <p className="mt-2 text-muted-foreground">
+          Manage class result submissions and approval workflow.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Result Setup</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
-            <select
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              className="rounded-md border p-2"
-            >
-              <option value="">Select Class</option>
-
-              {classes.map((cls) => (
-                <option key={cls.id} value={cls.id}>
-                  {cls.name}
-                </option>
-              ))}
-            </select>
-
-            <Input
-              placeholder="Session ID"
-              value={sessionId}
-              onChange={(e) => setSessionId(e.target.value)}
-            />
-
-            <Input
-              placeholder="Term ID"
-              value={termId}
-              onChange={(e) => setTermId(e.target.value)}
-            />
-
-            <Button variant="outline" onClick={loadResults}>
-              View Results
-            </Button>
+      <div className="grid gap-5 md:grid-cols-3">
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <GraduationCap className="h-6 w-6 text-blue-600" />
+            <span className="font-medium">Assigned Classes</span>
           </div>
-        </CardContent>
-      </Card>
 
-      {students.length > 0 && subjects.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Result Entry</CardTitle>
-          </CardHeader>
+          <h2 className="mt-5 text-4xl font-bold">{classes.length}</h2>
+        </div>
 
-          <CardContent>
-            <div className="overflow-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="p-3 text-left">Student</th>
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <ClipboardCheck className="h-6 w-6 text-green-600" />
+            <span className="font-medium">Academic Session</span>
+          </div>
 
-                    {subjects.map((subject) => (
-                      <th
-                        key={subject.id}
-                        className="min-w-[250px] p-3 text-left"
-                      >
-                        {subject.name}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
+          <p className="mt-5 text-sm text-muted-foreground">
+            Active Session & Term loaded automatically.
+          </p>
+        </div>
 
-                <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id} className="border-t align-top">
-                      <td className="p-3 font-medium">
-                        {`${student.first_name ?? ""} ${student.last_name ?? ""}`}
-                      </td>
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3">
+            <BookOpen className="h-6 w-6 text-purple-600" />
+            <span className="font-medium">Workflow</span>
+          </div>
 
-                      {subjects.map((subject) => (
-                        <td key={subject.id} className="space-y-2 p-3">
-                          <Input
-                            type="number"
-                            placeholder="CA"
-                            value={
-                              scores?.[student.id]?.[subject.id]?.ca_score ?? ""
-                            }
-                            onChange={(e) =>
-                              updateScore(
-                                student.id,
-                                subject.id,
-                                "ca_score",
-                                e.target.value,
-                              )
-                            }
-                          />
+          <p className="mt-5 text-sm text-muted-foreground">
+            Enter → Submit → Approve → Publish → Reject → Edit → Resubmit
+          </p>
+        </div>
+      </div>
 
-                          <Input
-                            type="number"
-                            placeholder="Exam"
-                            value={
-                              scores?.[student.id]?.[subject.id]?.exam_score ??
-                              ""
-                            }
-                            onChange={(e) =>
-                              updateScore(
-                                student.id,
-                                subject.id,
-                                "exam_score",
-                                e.target.value,
-                              )
-                            }
-                          />
+      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+        <div className="border-b bg-gray-50 px-6 py-4">
+          <h2 className="text-lg font-semibold">Assigned Classes</h2>
+        </div>
 
-                          <Input
-                            placeholder="Comment"
-                            value={
-                              scores?.[student.id]?.[subject.id]
-                                ?.teacher_comment ?? ""
-                            }
-                            onChange={(e) =>
-                              updateScore(
-                                student.id,
-                                subject.id,
-                                "teacher_comment",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <Button
-              className="mt-6"
-              disabled={submitting}
-              onClick={submitResults}
+        <div className="divide-y">
+          {classes.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between"
             >
-              {submitting ? "Submitting..." : "Submit Results"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+              <div>
+                <h3 className="text-lg font-semibold">{item.name}</h3>
 
-      {resultView && (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle>Submitted Results</CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <div className="overflow-auto rounded-lg border">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="p-3 text-left">Student</th>
-
-                      <th className="p-3 text-left">Subject</th>
-
-                      <th className="p-3 text-left">CA</th>
-
-                      <th className="p-3 text-left">Exam</th>
-
-                      <th className="p-3 text-left">Total</th>
-
-                      <th className="p-3 text-left">Grade</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {resultView.results?.map((result: any) => (
-                      <tr
-                        key={`${result.student_id}-${result.subject_id}`}
-                        className="border-t"
-                      >
-                        <td className="p-3">{result.student_name}</td>
-
-                        <td className="p-3">{result.subject_name}</td>
-
-                        <td className="p-3">{result.ca_score}</td>
-
-                        <td className="p-3">{result.exam_score}</td>
-
-                        <td className="p-3">{result.total_score}</td>
-
-                        <td className="p-3">{result.grade}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="mt-3">{badge(item.result?.status)}</div>
               </div>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Class Positions</CardTitle>
-            </CardHeader>
+              <div>{actionButton(item)}</div>
+            </div>
+          ))}
 
-            <CardContent>
-              <div className="overflow-auto rounded-lg border">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="p-3 text-left">Position</th>
-
-                      <th className="p-3 text-left">Student</th>
-
-                      <th className="p-3 text-left">Total Score</th>
-
-                      <th className="p-3 text-left">Average</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {positions.map((item: any) => (
-                      <tr key={item.student_id} className="border-t">
-                        <td className="p-3 font-bold">#{item.position}</td>
-
-                        <td className="p-3">{item.student_name}</td>
-
-                        <td className="p-3">{item.total_score}</td>
-
-                        <td className="p-3">{item.average_score}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
+          {classes.length === 0 && (
+            <div className="py-16 text-center text-muted-foreground">
+              No assigned classes found.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

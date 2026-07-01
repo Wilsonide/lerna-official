@@ -1,5 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
+import { ClassResultResponse } from "./teacher.service";
+
+export interface UpdateResultRecordPayload {
+  ca_score: number;
+  exam_score: number;
+  teacher_comment?: string;
+}
+
+export interface ResultBatchStatusResponse {
+  batch_id: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PUBLISHED";
+  message: string;
+}
+
+export interface RejectResultRequest {
+  note: string;
+}
+
+export interface ApprovalHistoryItem {
+  id: string;
+  action: string;
+  note?: string;
+  action_at: string;
+
+  actor: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
 export interface SchoolAdminDashboard {
   school_name: string;
 
@@ -225,6 +256,7 @@ export const SchoolAdminService = {
   //   SESSION/TERMS
   // =========================
   getSessions: async (): Promise<{
+    data: any;
     sessions: {
       id: string;
       name: string;
@@ -250,6 +282,7 @@ export const SchoolAdminService = {
     return data;
   },
   getTerms: async (): Promise<{
+    data: any;
     terms: {
       id: string;
       name: string;
@@ -289,23 +322,25 @@ export const SchoolAdminService = {
   // RESULTS MANAGEMENT
   // =========================
 
-  getClassResults: async (
-    classId: string,
-    sessionId: string,
-    termId: string,
-  ) => {
+  getClassResults: async (params: {
+    classId: string;
+    sessionId?: string;
+    termId?: string;
+  }): Promise<ClassResultResponse> => {
     const { data } = await api.get("/school-admin/results/class", {
       params: {
-        class_id: classId,
-        session_id: sessionId,
-        term_id: termId,
+        class_id: params.classId,
+        session_id: params.sessionId,
+        term_id: params.termId,
       },
     });
 
     return data;
   },
 
-  approveResult: async (batchId: string) => {
+  approveResult: async (
+    batchId: string,
+  ): Promise<ResultBatchStatusResponse> => {
     const { data } = await api.post(`/school-admin/results/${batchId}/approve`);
 
     return data;
@@ -313,10 +348,8 @@ export const SchoolAdminService = {
 
   rejectResult: async (
     batchId: string,
-    payload: {
-      note: string;
-    },
-  ) => {
+    payload: RejectResultRequest,
+  ): Promise<ResultBatchStatusResponse> => {
     const { data } = await api.post(
       `/school-admin/results/${batchId}/reject`,
       payload,
@@ -325,18 +358,33 @@ export const SchoolAdminService = {
     return data;
   },
 
-  publishResult: async (batchId: string) => {
+  publishResult: async (
+    batchId: string,
+  ): Promise<ResultBatchStatusResponse> => {
     const { data } = await api.post(`/school-admin/results/${batchId}/publish`);
 
     return data;
   },
 
-  getResultApprovalHistory: async (batchId: string) => {
+  getResultApprovalHistory: async (
+    batchId: string,
+  ): Promise<ApprovalHistoryItem[]> => {
     const { data } = await api.get(`/school-admin/results/${batchId}/history`);
 
     return data;
   },
 
+  updateResultRecord: async (
+    recordId: string,
+    payload: UpdateResultRecordPayload,
+  ): Promise<{ message: string }> => {
+    const { data } = await api.patch(
+      `/school-admin/results/records/${recordId}`,
+      payload,
+    );
+
+    return data;
+  },
   // =========================
   // ATTENDANCE
   // =========================

@@ -3,17 +3,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useState } from "react";
-
-import Link from "next/link";
-
 import { toast } from "sonner";
-
-import { CheckCircle, XCircle, Send, Download, Eye } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Send,
+  Download,
+  Eye,
+  Loader2,
+} from "lucide-react";
 
 import { SchoolAdminService } from "@/app/services/school-admin.service";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 
 import {
@@ -26,6 +28,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 
+/* TYPES */
 interface SchoolClass {
   id: string;
   name: string;
@@ -41,6 +44,23 @@ interface Term {
   name: string;
 }
 
+interface StudentResult {
+  student_id: string;
+  student_name: string;
+  total_score: number;
+  average_score: number;
+  position: number;
+  passed_subjects: number;
+  failed_subjects: number;
+}
+
+interface ClassResultResponse {
+  batch_id: string;
+  status: "draft" | "approved" | "published" | "rejected" | string;
+  editable: boolean;
+  students: StudentResult[];
+}
+
 export default function ResultsPage() {
   const [loading, setLoading] = useState(false);
 
@@ -52,131 +72,124 @@ export default function ResultsPage() {
   const [sessionId, setSessionId] = useState("");
   const [termId, setTermId] = useState("");
 
-  const [results, setResults] = useState<any[]>([]);
-
   const [rejectNote, setRejectNote] = useState("");
 
-  const loadFilters = async () => {
+  const [resultBatch, setResultBatch] = useState<ClassResultResponse | null>(
+    null,
+  );
+
+  const status = resultBatch?.status ?? "";
+
+  const isDraft = status === "DRAFT";
+  const isSubmitted = status === "SUBMITTED";
+  const isApproved = status === "APPROVED";
+  const isRejected = status === "REJECTED";
+  const isPublished = status === "PUBLISHED";
+
+  const canApprove = !!resultBatch && (isDraft || isSubmitted);
+
+  const canReject = !!resultBatch && (isDraft || isSubmitted || isApproved);
+
+  const canPublish = !!resultBatch && isApproved;
+
+  /* LOAD FILTERS */
+  async function loadFilters() {
     try {
-      const [classesRes, sessionsRes, termsRes] = await Promise.all([
+      const [c, s, t] = await Promise.all([
         SchoolAdminService.getClasses(),
         SchoolAdminService.getSessions(),
         SchoolAdminService.getTerms(),
       ]);
 
-      setClasses(
-        Array.isArray(classesRes?.classes)
-          ? classesRes.classes
-          : Array.isArray(classesRes)
-            ? classesRes
-            : [],
-      );
+      console.log("CLASSES RESPONSE:", c);
+      console.log("SESSIONS RESPONSE:", s);
+      console.log("TERMS RESPONSE:", t);
 
-      setSessions(
-        Array.isArray(sessionsRes?.sessions) ? sessionsRes.sessions : [],
-      );
-
-      setTerms(Array.isArray(termsRes?.terms) ? termsRes.terms : []);
-    } catch (error) {
-      console.error(error);
-
+      setClasses(c?.classes || c?.data?.classes || c || []);
+      setSessions(s?.sessions || s?.data?.sessions || s || []);
+      setTerms(t?.terms || t?.data?.terms || t || []);
+    } catch (err) {
+      console.error("FILTER ERROR:", err);
       toast.error("Failed to load filters");
     }
-  };
+  }
 
   useEffect(() => {
     void Promise.resolve().then(() => loadFilters());
   }, []);
 
-  const loadResults = async () => {
+  /* LOAD RESULTS */
+  async function loadResults() {
     if (!classId || !sessionId || !termId) {
-      toast.error("Select class, session and term");
-
+      toast.error("Select class, session and term.");
       return;
     }
 
     try {
       setLoading(true);
 
-      const data = await SchoolAdminService.getClassResults(
+      const data = await SchoolAdminService.getClassResults({
         classId,
         sessionId,
         termId,
-      );
+      });
 
-      setResults(
-        Array.isArray(data?.results)
-          ? data.results
-          : Array.isArray(data)
-            ? data
-            : [],
-      );
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to load results");
+      setResultBatch(data);
+    } catch {
+      toast.error("Failed to load results.");
+      setResultBatch(null);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const approveBatch = async (batchId: string) => {
+  /* ACTIONS */
+  async function approveBatch() {
+    if (!resultBatch) return;
+
     try {
-      await SchoolAdminService.approveResult(batchId);
-
+      await SchoolAdminService.approveResult(resultBatch.batch_id);
       toast.success("Results approved");
-
       await loadResults();
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to approve");
+    } catch {
+      toast.error("Approval failed");
     }
-  };
+  }
 
-  const publishBatch = async (batchId: string) => {
+  async function publishBatch() {
+    if (!resultBatch) return;
+
     try {
-      await SchoolAdminService.publishResult(batchId);
-
+      await SchoolAdminService.publishResult(resultBatch.batch_id);
       toast.success("Results published");
-
       await loadResults();
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to publish");
+    } catch {
+      toast.error("Publish failed");
     }
-  };
+  }
 
-  const rejectBatch = async (batchId: string) => {
+  async function rejectBatch() {
+    if (!resultBatch) return;
+
     if (!rejectNote.trim()) {
-      toast.error("Provide rejection note");
-
+      toast.error("Add rejection note");
       return;
     }
 
     try {
-      await SchoolAdminService.rejectResult(batchId, {
+      await SchoolAdminService.rejectResult(resultBatch.batch_id, {
         note: rejectNote,
       });
 
       toast.success("Results rejected");
-
       setRejectNote("");
-
       await loadResults();
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to reject");
+    } catch {
+      toast.error("Reject failed");
     }
-  };
+  }
 
-  const exportResults = async () => {
-    if (!classId || !sessionId || !termId) {
-      return;
-    }
-
+  async function exportResults() {
     try {
       const blob = await SchoolAdminService.exportResults(
         classId,
@@ -185,181 +198,187 @@ export default function ResultsPage() {
       );
 
       const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
 
-      const link = document.createElement("a");
+      a.href = url;
+      a.download = "results.xlsx";
+      a.click();
 
-      link.href = url;
+      window.URL.revokeObjectURL(url);
 
-      link.download = "results-export.xlsx";
-
-      link.click();
-
-      toast.success("Export started");
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to export");
+      toast.success("Exported");
+    } catch {
+      toast.error("Export failed");
     }
-  };
+  }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
-      <div>
-        <h1 className="text-3xl font-bold">Results Management</h1>
-
-        <p className="text-muted-foreground">
-          Approve, reject and publish class results
-        </p>
-      </div>
-
+    <div className="p-6 space-y-6">
+      {/* FILTER CARD */}
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
+          <CardTitle>Result Management</CardTitle>
         </CardHeader>
 
-        <CardContent className="grid gap-4 md:grid-cols-4">
-          <Select value={sessionId} onValueChange={setSessionId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Session" />
-            </SelectTrigger>
+        <CardContent className="space-y-4">
+          {/* FILTERS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Select onValueChange={setClassId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Class" />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            <SelectContent>
-              {sessions.map((session) => (
-                <SelectItem key={session.id} value={session.id}>
-                  {session.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select onValueChange={setSessionId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Session" />
+              </SelectTrigger>
+              <SelectContent>
+                {sessions.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={termId} onValueChange={setTermId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Term" />
-            </SelectTrigger>
+            <Select onValueChange={setTermId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Term" />
+              </SelectTrigger>
+              <SelectContent>
+                {terms.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <SelectContent>
-              {terms.map((term) => (
-                <SelectItem key={term.id} value={term.id}>
-                  {term.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* ACTIONS */}
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={loadResults} disabled={loading}>
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Eye className="w-4 h-4 mr-2" />
+              )}
+              View
+            </Button>
 
-          <Select value={classId} onValueChange={setClassId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Class" />
-            </SelectTrigger>
+            <Button variant="secondary" onClick={exportResults}>
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
 
-            <SelectContent>
-              {classes.map((schoolClass) => (
-                <SelectItem key={schoolClass.id} value={schoolClass.id}>
-                  {schoolClass.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Button onClick={approveBatch} disabled={!canApprove}>
+              <CheckCircle className="mr-2 h-4 w-4" />
 
-          <Button onClick={loadResults}>Load Results</Button>
+              {isApproved ? "Approved" : "Approve"}
+            </Button>
+
+            <Button onClick={publishBatch} disabled={!canPublish}>
+              <Send className="mr-2 h-4 w-4" />
+
+              {isPublished ? "Published" : "Publish"}
+            </Button>
+          </div>
+
+          {/* REJECT */}
+          <div className="flex gap-3">
+            <Input
+              placeholder="Rejection note"
+              value={rejectNote}
+              onChange={(e) => setRejectNote(e.target.value)}
+            />
+
+            <Button
+              variant="destructive"
+              onClick={rejectBatch}
+              disabled={!canReject}
+            >
+              <XCircle className="mr-2 h-4 w-4" />
+              Reject
+            </Button>
+          </div>
+
+          {/* STATUS */}
+          {status && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Status</span>
+
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-semibold
+      ${
+        isApproved
+          ? "bg-green-100 text-green-700"
+          : isRejected
+            ? "bg-red-100 text-red-700"
+            : isPublished
+              ? "bg-blue-100 text-blue-700"
+              : "bg-yellow-100 text-yellow-700"
+      }`}
+              >
+                {status}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Result Batches</CardTitle>
+      {/* TABLE UI */}
+      {resultBatch && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Students Results</CardTitle>
+          </CardHeader>
 
-          <Button variant="outline" onClick={exportResults}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-        </CardHeader>
-
-        <CardContent>
-          {loading ? (
-            <div className="py-10 text-center">Loading...</div>
-          ) : results.length === 0 ? (
-            <div className="py-10 text-center">No results found</div>
-          ) : (
-            <div className="overflow-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border text-sm">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="p-3 text-left">Student</th>
-
-                    <th className="p-3 text-left">Subjects</th>
-
-                    <th className="p-3 text-left">Average</th>
-
-                    <th className="p-3 text-left">Position</th>
-
-                    <th className="p-3 text-left">Status</th>
-
-                    <th className="p-3 text-right">Actions</th>
+                    <th className="p-2 text-left">Student</th>
+                    <th className="p-2">Total</th>
+                    <th className="p-2">Average</th>
+                    <th className="p-2">Position</th>
+                    <th className="p-2">Passed</th>
+                    <th className="p-2">Failed</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {results.map((row: any) => (
-                    <tr key={row.batch_id} className="border-t">
-                      <td className="p-3">{row.student_name}</td>
-
-                      <td className="p-3">{row.subject_count}</td>
-
-                      <td className="p-3">{row.average}</td>
-
-                      <td className="p-3">{row.position}</td>
-
-                      <td className="p-3">{row.status}</td>
-
-                      <td className="p-3">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => approveBatch(row.batch_id)}
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </Button>
-
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => publishBatch(row.batch_id)}
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
-
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() => rejectBatch(row.batch_id)}
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </Button>
-
-                          <Link href={`/school-admin/results/${row.batch_id}`}>
-                            <Button size="icon" variant="outline">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </div>
+                  {resultBatch.students.map((s) => (
+                    <tr
+                      key={s.student_id}
+                      className="border-t hover:bg-gray-50"
+                    >
+                      <td className="p-2 font-medium">{s.student_name}</td>
+                      <td className="p-2 text-center">{s.total_score}</td>
+                      <td className="p-2 text-center">{s.average_score}</td>
+                      <td className="p-2 text-center">{s.position}</td>
+                      <td className="p-2 text-center text-green-600">
+                        {s.passed_subjects}
+                      </td>
+                      <td className="p-2 text-center text-red-600">
+                        {s.failed_subjects}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          )}
-
-          <div className="mt-6">
-            <Input
-              placeholder="Rejection note..."
-              value={rejectNote}
-              onChange={(e) => setRejectNote(e.target.value)}
-            />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
