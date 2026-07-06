@@ -92,6 +92,26 @@ export default function ResultsPage() {
 
   const canPublish = !!resultBatch && isApproved;
 
+  const normalize = (response: any) => {
+    if (Array.isArray(response)) return response;
+
+    if (Array.isArray(response.data)) return response.data;
+
+    if (Array.isArray(response.sessions)) return response.sessions;
+
+    if (Array.isArray(response.classes)) return response.classes;
+
+    if (Array.isArray(response.terms)) return response.terms;
+
+    if (Array.isArray(response.data?.sessions)) return response.data.sessions;
+
+    if (Array.isArray(response.data?.classes)) return response.data.classes;
+
+    if (Array.isArray(response.data?.terms)) return response.data.terms;
+
+    return [];
+  };
+
   /* LOAD FILTERS */
   async function loadFilters() {
     try {
@@ -105,9 +125,9 @@ export default function ResultsPage() {
       console.log("SESSIONS RESPONSE:", s);
       console.log("TERMS RESPONSE:", t);
 
-      setClasses(c?.classes || c?.data?.classes || c || []);
-      setSessions(s?.sessions || s?.data?.sessions || s || []);
-      setTerms(t?.terms || t?.data?.terms || t || []);
+      setClasses(normalize(c));
+      setSessions(normalize(s));
+      setTerms(normalize(t));
     } catch (err) {
       console.error("FILTER ERROR:", err);
       toast.error("Failed to load filters");
