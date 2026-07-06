@@ -1,7 +1,9 @@
 export interface School {
+  state: string;
   id: string;
   name: string;
   code: string;
+  slug: string;
   email: string;
   phone: string;
   website?: string;
