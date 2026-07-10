@@ -60,6 +60,7 @@ export default function SchoolsPage() {
       const res = await AdminService.getSchools();
 
       setSchools(res.schools ?? res);
+      console.log("Schools loaded", res.schools ?? res);
     } catch {
       toast.error("Failed to load schools");
     } finally {
@@ -194,9 +195,9 @@ export default function SchoolsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>School</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>State</TableHead>
+                      <TableHead>Admin</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Password</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead className="text-right">Action</TableHead>
                     </TableRow>
@@ -215,11 +216,58 @@ export default function SchoolsPage() {
                           </div>
                         </TableCell>
 
-                        <TableCell>{school.email}</TableCell>
+                        <TableCell>
+                          <div>
+                            <p>
+                              {school.admin?.first_name}{" "}
+                              {school.admin?.last_name}
+                            </p>
 
-                        <TableCell>{school.phone}</TableCell>
+                            <p className="text-xs text-muted-foreground">
+                              {school.admin?.email}
+                            </p>
+                          </div>
+                        </TableCell>
 
-                        <TableCell>{school.state}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono text-sm">
+                              {school.admin?.username ?? "-"}
+                            </span>
+
+                            {school.admin?.username && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() =>
+                                  copy(school.admin!.username!, "Username")
+                                }
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        <TableCell>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-mono text-sm">
+                              {school.admin?.password ?? "-"}
+                            </span>
+
+                            {school.admin?.password && (
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() =>
+                                  copy(school.admin!.password!, "Password")
+                                }
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
 
                         <TableCell>
                           <Badge
