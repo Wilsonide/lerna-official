@@ -40,7 +40,11 @@ interface Teacher {
   created_at?: string;
 }
 
-export default function TeachersPage() {
+type Props = {
+  onSuccess: (username: string, password: string) => void;
+};
+
+export default function TeachersPage({ onSuccess }: Props) {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
 
