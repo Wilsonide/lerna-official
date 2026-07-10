@@ -50,7 +50,7 @@ export default function CredentialsDialog({
           </div>
 
           <div className="rounded-xl border bg-muted/40 p-4">
-            <p className="text-sm text-muted-foreground">Temporary Password</p>
+            <p className="text-sm text-muted-foreground">Password</p>
 
             <p className="mt-1 font-semibold break-all">{password}</p>
           </div>

@@ -42,7 +42,6 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
     first_name: "",
     last_name: "",
     email: "",
-    username: "",
     gender: "",
     date_of_birth: "",
     admission_date: "",
@@ -86,7 +85,6 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
         first_name: "",
         last_name: "",
         email: "",
-        username: "",
         gender: "",
         date_of_birth: "",
         admission_date: "",
@@ -138,22 +136,14 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Username</Label>
+          <div className="rounded-lg border bg-muted/40 p-4">
+            <p className="text-sm font-medium">
+              Login credentials are generated automatically.
+            </p>
 
-            <Input
-              value={form.username}
-              placeholder="john"
-              onChange={(e) => update("username", e.target.value)}
-            />
-
-            <p className="text-xs text-muted-foreground">
-              Student will login as:
-              <span className="font-medium">
-                {" "}
-                schoolslug_
-                {form.username || "username"}
-              </span>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Username and temporary password will be created by the system
+              after registration.
             </p>
           </div>
 

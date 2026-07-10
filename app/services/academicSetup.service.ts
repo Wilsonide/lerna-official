@@ -1,0 +1,273 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { api } from "@/lib/api";
+
+/* ===========================================================
+ * TEMPLATE TYPES
+ * =========================================================== */
+
+export interface SubjectTemplate {
+  id: string;
+  name: string;
+  code?: string | null;
+  level: string;
+}
+
+export interface ClassTemplate {
+  id: string;
+  name: string;
+  level: string;
+  sort_order: number;
+  subjects: SubjectTemplate[];
+}
+
+export interface AcademicTemplateResponse {
+  id: string;
+  name: string;
+  description?: string | null;
+  classes: ClassTemplate[];
+}
+
+/* ===========================================================
+ * CONFIGURE SETUP
+ * =========================================================== */
+
+export interface ConfigureSubjectRequest {
+  template_subject_id?: string | null;
+
+  name: string;
+
+  code?: string | null;
+
+  enabled: boolean;
+
+  is_custom: boolean;
+}
+
+export interface ConfigureClassRequest {
+  template_class_id?: string | null;
+
+  name: string;
+
+  level: string;
+
+  sort_order: number;
+
+  enabled: boolean;
+
+  is_custom: boolean;
+
+  subjects: ConfigureSubjectRequest[];
+}
+
+export interface ConfigureAcademicSetupRequest {
+  academic_template_id: string;
+
+  classes: ConfigureClassRequest[];
+}
+
+/* ===========================================================
+ * SCHOOL SETUP
+ * =========================================================== */
+
+export interface SchoolSubject {
+  id: string;
+
+  template_subject_id?: string | null;
+
+  name: string;
+
+  code?: string | null;
+
+  is_custom: boolean;
+}
+
+export interface SchoolClass {
+  id: string;
+
+  template_class_id?: string | null;
+
+  name: string;
+
+  level: string;
+
+  sort_order: number;
+
+  is_custom: boolean;
+
+  subjects: SchoolSubject[];
+}
+
+export interface SchoolAcademicSetup {
+  configured: boolean;
+
+  classes: SchoolClass[];
+}
+
+/* ===========================================================
+ * CONFIGURE RESPONSE
+ * =========================================================== */
+
+export interface AcademicSetupSummary {
+  classes_created: number;
+
+  subjects_created: number;
+
+  mappings_created: number;
+
+  message: string;
+
+  setup: SchoolAcademicSetup;
+}
+
+/* ===========================================================
+ * CLASS CRUD
+ * =========================================================== */
+
+export interface CreateClassRequest {
+  name: string;
+
+  level: string;
+
+  sort_order?: number;
+}
+
+export interface UpdateClassRequest {
+  name: string;
+
+  level?: string;
+
+  sort_order?: number;
+}
+
+/* ===========================================================
+ * SUBJECT CRUD
+ * =========================================================== */
+
+export interface CreateSubjectRequest {
+  name: string;
+
+  code?: string | null;
+}
+
+export interface UpdateSubjectRequest {
+  name: string;
+
+  code?: string | null;
+}
+
+/* ===========================================================
+ * ASSIGN SUBJECTS
+ * =========================================================== */
+
+export interface AssignSubjectsRequest {
+  subject_ids: string[];
+}
+
+export class AcademicSetupService {
+  // ==========================================================
+  // TEMPLATE
+  // ==========================================================
+
+  static async getTemplates(): Promise<AcademicTemplateResponse[]> {
+    const response = await api.get("/academic-setup/templates");
+
+    return response.data;
+  }
+
+  // ==========================================================
+  // SCHOOL SETUP
+  // ==========================================================
+
+  static async getSchoolSetup(): Promise<SchoolAcademicSetup> {
+    const response = await api.get("/academic-setup/school");
+
+    return response.data;
+  }
+
+  static async configure(
+    payload: ConfigureAcademicSetupRequest,
+  ): Promise<AcademicSetupSummary> {
+    const response = await api.post("/academic-setup/configure", payload);
+
+    return response.data;
+  }
+
+  static async updateSetup(
+    payload: ConfigureAcademicSetupRequest,
+  ): Promise<AcademicSetupSummary> {
+    const response = await api.put("/academic-setup", payload);
+
+    return response.data;
+  }
+
+  // ==========================================================
+  // CLASS CRUD
+  // ==========================================================
+
+  static async createClass(payload: CreateClassRequest): Promise<SchoolClass> {
+    const response = await api.post("/academic-setup/classes", payload);
+
+    return response.data;
+  }
+
+  static async updateClass(
+    classId: string,
+    payload: UpdateClassRequest,
+  ): Promise<SchoolClass> {
+    const response = await api.patch(
+      `/academic-setup/classes/${classId}`,
+      payload,
+    );
+
+    return response.data;
+  }
+
+  static async deleteClass(classId: string): Promise<void> {
+    await api.delete(`/academic-setup/classes/${classId}`);
+  }
+
+  // ==========================================================
+  // SUBJECT CRUD
+  // ==========================================================
+
+  static async createSubject(
+    payload: CreateSubjectRequest,
+  ): Promise<SchoolSubject> {
+    const response = await api.post("/academic-setup/subjects", payload);
+
+    return response.data;
+  }
+
+  static async updateSubject(
+    subjectId: string,
+    payload: UpdateSubjectRequest,
+  ): Promise<SchoolSubject> {
+    const response = await api.patch(
+      `/academic-setup/subjects/${subjectId}`,
+      payload,
+    );
+
+    return response.data;
+  }
+
+  static async deleteSubject(subjectId: string): Promise<void> {
+    await api.delete(`/academic-setup/subjects/${subjectId}`);
+  }
+
+  // ==========================================================
+  // CLASS SUBJECTS
+  // ==========================================================
+
+  static async assignSubjects(
+    classId: string,
+    payload: AssignSubjectsRequest,
+  ): Promise<SchoolClass> {
+    const response = await api.put(
+      `/academic-setup/classes/${classId}/subjects`,
+      payload,
+    );
+
+    return response.data;
+  }
+}

@@ -3,11 +3,21 @@ import { persist } from "zustand/middleware";
 
 export interface User {
   id: string;
+
   email: string;
+
   role: string;
+
   school_id: string;
+
+  school_name?: string;
+
+  school_logo?: string | null;
+
   profile_completed: boolean;
+
   first_name?: string;
+
   last_name?: string;
 }
 

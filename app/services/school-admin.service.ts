@@ -1,6 +1,63 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/lib/api";
 import { ClassResultResponse } from "./teacher.service";
+export interface SubjectItem {
+  id: string;
+  name: string;
+}
+
+export interface TeacherItem {
+  id: string;
+
+  first_name: string;
+
+  last_name: string;
+
+  email: string;
+}
+
+export interface ClassTemplate {
+  name: string;
+
+  level: string;
+
+  sort_order: number;
+}
+
+export interface ConfigureClass {
+  name: string;
+
+  level: string;
+
+  sort_order: number;
+  enabled: boolean;
+
+  subject_ids: string[];
+
+  teacher_ids: string[];
+}
+
+export interface SaveAcademicStructureRequest {
+  classes: ConfigureClass[];
+}
+
+export interface ConfiguredClass {
+  id: string;
+
+  name: string;
+
+  level: string;
+
+  sort_order: number;
+
+  subjects: SubjectItem[];
+
+  teachers: TeacherItem[];
+}
+
+export interface AcademicStructureResponse {
+  classes: ConfiguredClass[];
+}
 
 export interface UpdateResultRecordPayload {
   ca_score: number;
@@ -531,5 +588,49 @@ export const SchoolAdminService = {
     });
 
     return response.data;
+  },
+  // ======================================================
+  // ACADEMIC STRUCTURE
+  // ======================================================
+
+  getClassTemplates: async (): Promise<ClassTemplate[]> => {
+    const { data } = await api.get(
+      "/school-admin/academic-structure/templates",
+    );
+
+    return data;
+  },
+
+  getAcademicStructure: async (): Promise<{
+    classes: ConfigureClass[];
+  }> => {
+    const { data } = await api.get("/school-admin/academic-structure");
+
+    return data;
+  },
+
+  saveAcademicStructure: async (
+    payload: SaveAcademicStructureRequest,
+  ): Promise<{
+    message: string;
+    count: number;
+  }> => {
+    const { data } = await api.post(
+      "/school-admin/academic-structure",
+      payload,
+    );
+
+    return data;
+  },
+
+  updateAcademicStructure: async (
+    payload: SaveAcademicStructureRequest,
+  ): Promise<{
+    message: string;
+    count: number;
+  }> => {
+    const { data } = await api.put("/school-admin/academic-structure", payload);
+
+    return data;
   },
 };

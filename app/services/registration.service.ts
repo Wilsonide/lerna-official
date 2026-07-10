@@ -4,7 +4,7 @@ export interface StudentRegistration {
   first_name: string;
   last_name: string;
   email: string;
-  username: string;
+
   gender: string;
   date_of_birth: string;
   admission_date: string;
@@ -15,7 +15,6 @@ export interface TeacherRegistration {
   first_name: string;
   last_name: string;
   email: string;
-  username: string;
   qualification: string;
   specialization: string;
   hire_date: string;
@@ -26,7 +25,6 @@ export interface ParentRegistration {
   first_name: string;
   last_name: string;
   email: string;
-  username: string;
   occupation: string;
   phone: string;
 }

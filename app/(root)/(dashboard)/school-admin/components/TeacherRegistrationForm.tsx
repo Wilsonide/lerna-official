@@ -1,16 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { RegistrationService } from "@/app/services/registration.service";
-import { StudentService } from "@/app/services/student.service";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
 import {
   Card,
   CardContent,
@@ -18,57 +15,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Props = {
-  onSuccess: (credentials: { username: string; password: string }) => void;
+  onSuccess: (username: string, password: string) => void;
 };
 
-type ClassItem = {
-  id: string;
-  name: string;
-  level?: string;
-};
-
-export default function TeacherRegistrationForm({ onSuccess }: Props) {
-  const [classes, setClasses] = useState<ClassItem[]>([]);
-  const [loadingClasses, setLoadingClasses] = useState(true);
-
+export default function ParentRegistrationForm({ onSuccess }: Props) {
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
     email: "",
-    username: "",
-    qualification: "",
-    specialization: "",
-    hire_date: "",
-    class_id: "",
+    occupation: "",
+    phone: "",
   });
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await StudentService.getClasses();
-
-        setClasses(res.classes || res || []);
-      } catch {
-        toast.error("Unable to load classes.");
-      } finally {
-        setLoadingClasses(false);
-      }
-    }
-
-    load();
-  }, []);
 
   function update(key: string, value: string) {
     setForm((prev) => ({
@@ -81,24 +44,21 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
     try {
       setLoading(true);
 
-      const res = await RegistrationService.registerTeacher(form);
+      const res = await RegistrationService.registerParent(form);
 
-      toast.success("Teacher registered successfully.");
+      toast.success("Parent registered successfully.");
 
-      onSuccess(res.credentials);
+      onSuccess(res.username, res.password);
 
       setForm({
         first_name: "",
         last_name: "",
         email: "",
-        username: "",
-        qualification: "",
-        specialization: "",
-        hire_date: "",
-        class_id: "",
+        occupation: "",
+        phone: "",
       });
     } catch (err: any) {
-      toast.error(err?.response?.data?.detail || "Registration failed.");
+      toast.error(err?.response?.data?.detail ?? "Parent registration failed.");
     } finally {
       setLoading(false);
     }
@@ -107,11 +67,12 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Register Teacher</CardTitle>
+        <CardTitle>Register Parent</CardTitle>
 
         <CardDescription>
-          Create a new teacher account. Login credentials will be generated
-          automatically.
+          Parent login credentials are generated automatically by the system.
+          After registration, the username and temporary password will be
+          displayed and stored for the school administrator.
         </CardDescription>
       </CardHeader>
 
@@ -121,6 +82,7 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
             <Label>First Name</Label>
 
             <Input
+              placeholder="Jane"
               value={form.first_name}
               onChange={(e) => update("first_name", e.target.value)}
             />
@@ -130,94 +92,56 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
             <Label>Last Name</Label>
 
             <Input
+              placeholder="Doe"
               value={form.last_name}
               onChange={(e) => update("last_name", e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Email</Label>
+            <Label>Email Address</Label>
 
             <Input
               type="email"
+              placeholder="jane@example.com"
               value={form.email}
               onChange={(e) => update("email", e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Username</Label>
+            <Label>Phone Number</Label>
 
             <Input
-              value={form.username}
-              onChange={(e) => update("username", e.target.value)}
-              placeholder="john"
+              placeholder="+2348012345678"
+              value={form.phone}
+              onChange={(e) => update("phone", e.target.value)}
             />
+          </div>
 
-            <p className="text-xs text-muted-foreground">
-              Student login will become:
-              <br />
-              schoolslug_username
+          <div className="space-y-2 md:col-span-2">
+            <Label>Occupation</Label>
+
+            <Input
+              placeholder="Business Owner"
+              value={form.occupation}
+              onChange={(e) => update("occupation", e.target.value)}
+            />
+          </div>
+
+          <div className="md:col-span-2 rounded-lg border bg-muted/40 p-4">
+            <p className="text-sm font-medium">Login Credentials</p>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              Username and password are generated automatically by the system.
+              They will be shown immediately after registration and remain
+              available to the school administrator from the Parents page.
             </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Qualification</Label>
-
-            <Input
-              value={form.qualification}
-              onChange={(e) => update("qualification", e.target.value)}
-              placeholder="B.Sc Education"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Specialization</Label>
-
-            <Input
-              value={form.specialization}
-              onChange={(e) => update("specialization", e.target.value)}
-              placeholder="Mathematics"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Hire Date</Label>
-
-            <Input
-              type="date"
-              value={form.hire_date}
-              onChange={(e) => update("hire_date", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Assigned Class</Label>
-
-            <Select
-              value={form.class_id}
-              onValueChange={(value) => update("class_id", value)}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={loadingClasses ? "Loading..." : "Select class"}
-                />
-              </SelectTrigger>
-
-              <SelectContent>
-                {classes.map((cls) => (
-                  <SelectItem key={cls.id} value={cls.id}>
-                    {cls.name}
-                    {cls.level ? ` (${cls.level})` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
         <Button className="w-full" disabled={loading} onClick={submit}>
-          {loading ? "Creating Teacher..." : "Register Teacher"}
+          {loading ? "Registering Parent..." : "Register Parent"}
         </Button>
       </CardContent>
     </Card>

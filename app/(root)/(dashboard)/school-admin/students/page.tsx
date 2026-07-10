@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { toast } from "sonner";
-import { Search, Pencil } from "lucide-react";
+import { Search, Pencil, Copy, KeyRound } from "lucide-react";
 
 import { SchoolAdminService } from "@/app/services/school-admin.service";
 
@@ -27,6 +27,10 @@ interface Student {
   first_name: string | null;
   last_name: string | null;
   email: string;
+
+  username: string;
+  password: string;
+
   is_active?: boolean;
   profile_completed?: boolean;
   created_at?: string;
@@ -44,7 +48,7 @@ export default function StudentsPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
 
-  const loadStudents = async () => {
+  async function loadStudents() {
     try {
       setLoading(true);
 
@@ -58,7 +62,7 @@ export default function StudentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
     void Promise.resolve().then(() => loadStudents());
@@ -68,24 +72,27 @@ export default function StudentsPage() {
     const term = search.toLowerCase();
 
     return students.filter((student) => {
-      const fullName =
-        `${student.first_name ?? ""} ${student.last_name ?? ""}`.toLowerCase();
+      const fullName = `${student.first_name ?? ""} ${
+        student.last_name ?? ""
+      }`.toLowerCase();
 
-      const email = (student.email ?? "").toLowerCase();
-
-      return fullName.includes(term) || email.includes(term);
+      return (
+        fullName.includes(term) ||
+        student.email.toLowerCase().includes(term) ||
+        student.username.toLowerCase().includes(term)
+      );
     });
   }, [students, search]);
 
-  const openEdit = (student: Student) => {
+  function openEdit(student: Student) {
     setSelectedStudent(student);
 
     setFirstName(student.first_name ?? "");
     setLastName(student.last_name ?? "");
     setEmail(student.email ?? "");
-  };
+  }
 
-  const saveStudent = async () => {
+  async function saveStudent() {
     if (!selectedStudent) return;
 
     try {
@@ -95,7 +102,7 @@ export default function StudentsPage() {
         email,
       });
 
-      toast.success("Student updated");
+      toast.success("Student updated.");
 
       await loadStudents();
 
@@ -103,9 +110,17 @@ export default function StudentsPage() {
     } catch (error) {
       console.error(error);
 
-      toast.error("Failed to update student");
+      toast.error("Failed to update student.");
     }
-  };
+  }
+
+  async function copyCredentials(student: Student) {
+    await navigator.clipboard.writeText(
+      `Username: ${student.username}\nPassword: ${student.password}`,
+    );
+
+    toast.success("Credentials copied.");
+  }
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-8">
@@ -113,7 +128,7 @@ export default function StudentsPage() {
         <h1 className="text-3xl font-bold">Students</h1>
 
         <p className="text-muted-foreground">
-          Manage all students in your school
+          Manage students and access their login credentials.
         </p>
       </div>
 
@@ -122,23 +137,23 @@ export default function StudentsPage() {
           <CardTitle>Student Directory</CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <div className="relative max-w-md">
-            <Search className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
 
             <Input
-              placeholder="Search students..."
+              className="pl-10"
+              placeholder="Search by name, email or username..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
             />
           </div>
 
           {loading ? (
             <div className="py-10 text-center">Loading students...</div>
           ) : filteredStudents.length === 0 ? (
-            <div className="text-muted-foreground py-10 text-center">
-              No students found
+            <div className="py-10 text-center text-muted-foreground">
+              No students found.
             </div>
           ) : (
             <div className="overflow-auto rounded-lg border">
@@ -146,10 +161,17 @@ export default function StudentsPage() {
                 <thead className="bg-muted">
                   <tr>
                     <th className="p-3 text-left">Name</th>
+
                     <th className="p-3 text-left">Email</th>
+
+                    <th className="p-3 text-left">Username</th>
+
+                    <th className="p-3 text-left">Password</th>
+
                     <th className="p-3 text-left">Status</th>
-                    <th className="p-3 text-left">Profile</th>
+
                     <th className="p-3 text-left">Created</th>
+
                     <th className="p-3 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -163,16 +185,22 @@ export default function StudentsPage() {
 
                     return (
                       <tr key={student.id} className="border-t">
-                        <td className="p-3">{fullName}</td>
+                        <td className="p-3 font-medium">{fullName}</td>
 
                         <td className="p-3">{student.email}</td>
 
+                        <td className="p-3 font-mono">{student.username}</td>
+
+                        <td className="p-3 font-mono">
+                          <div className="flex items-center gap-2">
+                            <KeyRound className="h-4 w-4 text-muted-foreground" />
+
+                            {student.password}
+                          </div>
+                        </td>
+
                         <td className="p-3">
-                          {student.is_active === undefined ? (
-                            <span className="text-muted-foreground text-xs">
-                              N/A
-                            </span>
-                          ) : student.is_active ? (
+                          {student.is_active ? (
                             <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">
                               Active
                             </span>
@@ -184,69 +212,128 @@ export default function StudentsPage() {
                         </td>
 
                         <td className="p-3">
-                          {student.profile_completed === undefined ? (
-                            <span className="text-muted-foreground text-xs">
-                              N/A
-                            </span>
-                          ) : student.profile_completed ? (
-                            <span className="text-green-600">Complete</span>
-                          ) : (
-                            <span className="text-red-600">Incomplete</span>
-                          )}
-                        </td>
-
-                        <td className="p-3">
                           {student.created_at
                             ? new Date(student.created_at).toLocaleDateString()
                             : "-"}
                         </td>
 
                         <td className="p-3 text-right">
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openEdit(student)}
-                              >
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                              </Button>
-                            </DialogTrigger>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => copyCredentials(student)}
+                            >
+                              <Copy className="mr-2 h-4 w-4" />
+                              Copy
+                            </Button>
 
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Edit Student</DialogTitle>
-                              </DialogHeader>
-
-                              <div className="space-y-4">
-                                <Input
-                                  value={firstName}
-                                  onChange={(e) => setFirstName(e.target.value)}
-                                  placeholder="First Name"
-                                />
-
-                                <Input
-                                  value={lastName}
-                                  onChange={(e) => setLastName(e.target.value)}
-                                  placeholder="Last Name"
-                                />
-
-                                <Input
-                                  value={email}
-                                  onChange={(e) => setEmail(e.target.value)}
-                                  placeholder="Email"
-                                />
-
+                            <Dialog>
+                              <DialogTrigger asChild>
                                 <Button
-                                  className="w-full"
-                                  onClick={saveStudent}
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openEdit(student)}
                                 >
-                                  Save Changes
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
                                 </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                              </DialogTrigger>
+
+                              <DialogContent className="sm:max-w-lg">
+                                <DialogHeader>
+                                  <DialogTitle>Edit Student</DialogTitle>
+                                </DialogHeader>
+
+                                <div className="space-y-5">
+                                  <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-2">
+                                      <label className="text-sm font-medium">
+                                        First Name
+                                      </label>
+
+                                      <Input
+                                        value={firstName}
+                                        onChange={(e) =>
+                                          setFirstName(e.target.value)
+                                        }
+                                      />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                      <label className="text-sm font-medium">
+                                        Last Name
+                                      </label>
+
+                                      <Input
+                                        value={lastName}
+                                        onChange={(e) =>
+                                          setLastName(e.target.value)
+                                        }
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <label className="text-sm font-medium">
+                                      Email
+                                    </label>
+
+                                    <Input
+                                      value={email}
+                                      onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                  </div>
+
+                                  <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
+                                    <h4 className="font-medium">
+                                      Login Credentials
+                                    </h4>
+
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Username
+                                      </p>
+
+                                      <p className="font-mono font-semibold">
+                                        {selectedStudent?.username}
+                                      </p>
+                                    </div>
+
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Password
+                                      </p>
+
+                                      <p className="font-mono font-semibold">
+                                        {selectedStudent?.password}
+                                      </p>
+                                    </div>
+
+                                    <Button
+                                      variant="secondary"
+                                      className="w-full"
+                                      onClick={() => {
+                                        if (selectedStudent) {
+                                          copyCredentials(selectedStudent);
+                                        }
+                                      }}
+                                    >
+                                      <Copy className="mr-2 h-4 w-4" />
+                                      Copy Login Credentials
+                                    </Button>
+                                  </div>
+
+                                  <Button
+                                    className="w-full"
+                                    onClick={saveStudent}
+                                  >
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
                         </td>
                       </tr>
                     );
