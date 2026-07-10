@@ -2,148 +2,359 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useMemo, useState } from "react";
 
-import { RegistrationService } from "@/app/services/registration.service";
+import { toast } from "sonner";
+import { Pencil, Search, Copy, KeyRound } from "lucide-react";
+
+import { SchoolAdminService } from "@/app/services/school-admin.service";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
-type Props = {
-  onSuccess: (username: string, password: string) => void;
-};
+interface Teacher {
+  id: string;
 
-export default function ParentRegistrationForm({ onSuccess }: Props) {
-  const [loading, setLoading] = useState(false);
+  first_name?: string | null;
+  last_name?: string | null;
 
-  const [form, setForm] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    occupation: "",
-    phone: "",
-  });
+  email: string;
 
-  function update(key: string, value: string) {
-    setForm((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  }
+  qualification?: string | null;
 
-  async function submit() {
+  username: string;
+  password: string;
+
+  is_active?: boolean;
+  profile_completed?: boolean;
+  created_at?: string;
+}
+
+export default function TeachersPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [editOpen, setEditOpen] = useState(false);
+
+  const [search, setSearch] = useState("");
+
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [qualification, setQualification] = useState("");
+
+  async function loadTeachers() {
     try {
       setLoading(true);
 
-      const res = await RegistrationService.registerParent(form);
+      const response = await SchoolAdminService.getSchoolTeachers();
 
-      toast.success("Parent registered successfully.");
+      setTeachers(Array.isArray(response?.teachers) ? response.teachers : []);
+    } catch (error) {
+      console.error(error);
 
-      onSuccess(res.username, res.password);
-
-      setForm({
-        first_name: "",
-        last_name: "",
-        email: "",
-        occupation: "",
-        phone: "",
-      });
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "Parent registration failed.");
+      toast.error("Failed to load teachers");
     } finally {
       setLoading(false);
     }
   }
 
+  useEffect(() => {
+    void Promise.resolve().then(() => loadTeachers());
+  }, []);
+
+  const filteredTeachers = useMemo(() => {
+    const term = search.toLowerCase();
+
+    return teachers.filter((teacher) => {
+      const fullName = `${teacher.first_name ?? ""} ${
+        teacher.last_name ?? ""
+      }`.toLowerCase();
+
+      return (
+        fullName.includes(term) ||
+        teacher.email.toLowerCase().includes(term) ||
+        teacher.username.toLowerCase().includes(term)
+      );
+    });
+  }, [teachers, search]);
+
+  function openEdit(teacher: Teacher) {
+    setSelectedTeacher(teacher);
+
+    setFirstName(teacher.first_name ?? "");
+    setLastName(teacher.last_name ?? "");
+    setEmail(teacher.email ?? "");
+    setQualification(teacher.qualification ?? "");
+
+    setEditOpen(true);
+  }
+
+  async function saveTeacher() {
+    if (!selectedTeacher) return;
+
+    try {
+      await SchoolAdminService.updateTeacher(selectedTeacher.id, {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        qualification: qualification || null,
+      });
+
+      toast.success("Teacher updated.");
+
+      await loadTeachers();
+
+      setEditOpen(false);
+      setSelectedTeacher(null);
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Failed to update teacher.");
+    }
+  }
+
+  async function copyCredentials(teacher: Teacher) {
+    await navigator.clipboard.writeText(
+      `Username: ${teacher.username}\nPassword: ${teacher.password}`,
+    );
+
+    toast.success("Credentials copied.");
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Register Parent</CardTitle>
+    <div className="mx-auto max-w-7xl space-y-8 p-8">
+      <div>
+        <h1 className="text-3xl font-bold">Teachers</h1>
 
-        <CardDescription>
-          Parent login credentials are generated automatically by the system.
-          After registration, the username and temporary password will be
-          displayed and stored for the school administrator.
-        </CardDescription>
-      </CardHeader>
+        <p className="text-muted-foreground">
+          Manage teachers and access their login credentials.
+        </p>
+      </div>
 
-      <CardContent className="space-y-6">
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>First Name</Label>
+      <Card>
+        <CardHeader>
+          <CardTitle>Teacher Directory</CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
 
             <Input
-              placeholder="Jane"
-              value={form.first_name}
-              onChange={(e) => update("first_name", e.target.value)}
+              className="pl-10"
+              placeholder="Search by name, email or username..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Last Name</Label>
+          {loading ? (
+            <div className="py-10 text-center">Loading teachers...</div>
+          ) : filteredTeachers.length === 0 ? (
+            <div className="py-10 text-center text-muted-foreground">
+              No teachers found.
+            </div>
+          ) : (
+            <div className="overflow-auto rounded-lg border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="p-3 text-left">Name</th>
 
-            <Input
-              placeholder="Doe"
-              value={form.last_name}
-              onChange={(e) => update("last_name", e.target.value)}
-            />
-          </div>
+                    <th className="p-3 text-left">Email</th>
 
-          <div className="space-y-2">
-            <Label>Email Address</Label>
+                    <th className="p-3 text-left">Username</th>
 
-            <Input
-              type="email"
-              placeholder="jane@example.com"
-              value={form.email}
-              onChange={(e) => update("email", e.target.value)}
-            />
-          </div>
+                    <th className="p-3 text-left">Password</th>
 
-          <div className="space-y-2">
-            <Label>Phone Number</Label>
+                    <th className="p-3 text-left">Qualification</th>
 
-            <Input
-              placeholder="+2348012345678"
-              value={form.phone}
-              onChange={(e) => update("phone", e.target.value)}
-            />
-          </div>
+                    <th className="p-3 text-left">Status</th>
 
-          <div className="space-y-2 md:col-span-2">
-            <Label>Occupation</Label>
+                    <th className="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
 
-            <Input
-              placeholder="Business Owner"
-              value={form.occupation}
-              onChange={(e) => update("occupation", e.target.value)}
-            />
-          </div>
+                <tbody>
+                  {filteredTeachers.map((teacher) => {
+                    const fullName =
+                      `${teacher.first_name ?? ""} ${
+                        teacher.last_name ?? ""
+                      }`.trim() || "No Name";
 
-          <div className="md:col-span-2 rounded-lg border bg-muted/40 p-4">
-            <p className="text-sm font-medium">Login Credentials</p>
+                    return (
+                      <tr key={teacher.id} className="border-t">
+                        <td className="p-3 font-medium">{fullName}</td>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              Username and password are generated automatically by the system.
-              They will be shown immediately after registration and remain
-              available to the school administrator from the Parents page.
-            </p>
-          </div>
-        </div>
+                        <td className="p-3">{teacher.email}</td>
 
-        <Button className="w-full" disabled={loading} onClick={submit}>
-          {loading ? "Registering Parent..." : "Register Parent"}
-        </Button>
-      </CardContent>
-    </Card>
+                        <td className="p-3 font-mono">{teacher.username}</td>
+
+                        <td className="p-3 font-mono">
+                          <div className="flex items-center gap-2">
+                            <KeyRound className="h-4 w-4 text-muted-foreground" />
+                            {teacher.password}
+                          </div>
+                        </td>
+
+                        <td className="p-3">{teacher.qualification || "-"}</td>
+
+                        <td className="p-3">
+                          {teacher.is_active ? (
+                            <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">
+                              Inactive
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-3 text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => copyCredentials(teacher)}
+                            >
+                              <Copy className="mr-2 h-4 w-4" />
+                              Copy
+                            </Button>
+
+                            <Dialog
+                              open={
+                                editOpen && selectedTeacher?.id === teacher.id
+                              }
+                              onOpenChange={(open) => {
+                                setEditOpen(open);
+
+                                if (!open) {
+                                  setSelectedTeacher(null);
+                                }
+                              }}
+                            >
+                              <DialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openEdit(teacher)}
+                                >
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
+                                </Button>
+                              </DialogTrigger>
+
+                              <DialogContent className="sm:max-w-lg">
+                                <DialogHeader>
+                                  <DialogTitle>Edit Teacher</DialogTitle>
+                                </DialogHeader>
+
+                                <div className="space-y-5">
+                                  <div className="grid gap-4 md:grid-cols-2">
+                                    <Input
+                                      placeholder="First Name"
+                                      value={firstName}
+                                      onChange={(e) =>
+                                        setFirstName(e.target.value)
+                                      }
+                                    />
+
+                                    <Input
+                                      placeholder="Last Name"
+                                      value={lastName}
+                                      onChange={(e) =>
+                                        setLastName(e.target.value)
+                                      }
+                                    />
+                                  </div>
+
+                                  <Input
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                  />
+
+                                  <Input
+                                    placeholder="Qualification"
+                                    value={qualification}
+                                    onChange={(e) =>
+                                      setQualification(e.target.value)
+                                    }
+                                  />
+
+                                  <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
+                                    <h4 className="font-medium">
+                                      Login Credentials
+                                    </h4>
+
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Username
+                                      </p>
+
+                                      <p className="font-mono font-semibold">
+                                        {selectedTeacher?.username}
+                                      </p>
+                                    </div>
+
+                                    <div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Password
+                                      </p>
+
+                                      <p className="font-mono font-semibold">
+                                        {selectedTeacher?.password}
+                                      </p>
+                                    </div>
+
+                                    <Button
+                                      className="w-full"
+                                      variant="secondary"
+                                      onClick={() => {
+                                        if (selectedTeacher) {
+                                          copyCredentials(selectedTeacher);
+                                        }
+                                      }}
+                                    >
+                                      <Copy className="mr-2 h-4 w-4" />
+                                      Copy Login Credentials
+                                    </Button>
+                                  </div>
+
+                                  <Button
+                                    className="w-full"
+                                    onClick={saveTeacher}
+                                  >
+                                    Save Changes
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
