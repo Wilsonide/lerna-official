@@ -6,6 +6,23 @@ import { api } from "@/lib/api";
  * TEMPLATE TYPES
  * =========================================================== */
 
+export const CLASS_LEVELS = [
+  "PRE_NURSERY",
+  "NURSERY",
+  "PRIMARY",
+  "JUNIOR_SECONDARY",
+  "SENIOR_SECONDARY",
+] as const;
+
+export type ClassLevel = (typeof CLASS_LEVELS)[number];
+
+export function formatLevel(level: string) {
+  return level
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export interface SubjectTemplate {
   id: string;
   name: string;
@@ -16,7 +33,7 @@ export interface SubjectTemplate {
 export interface ClassTemplate {
   id: string;
   name: string;
-  level: string;
+  level: ClassLevel;
   sort_order: number;
   subjects: SubjectTemplate[];
 }
@@ -49,7 +66,7 @@ export interface ConfigureClassRequest {
 
   name: string;
 
-  level: string;
+  level: ClassLevel;
 
   sort_order: number;
 
@@ -59,7 +76,6 @@ export interface ConfigureClassRequest {
 
   subjects: ConfigureSubjectRequest[];
 }
-
 export interface ConfigureAcademicSetupRequest {
   academic_template_id: string;
 
@@ -89,7 +105,7 @@ export interface SchoolClass {
 
   name: string;
 
-  level: string;
+  level: ClassLevel;
 
   sort_order: number;
 
@@ -126,17 +142,13 @@ export interface AcademicSetupSummary {
 
 export interface CreateClassRequest {
   name: string;
-
-  level: string;
-
+  level: ClassLevel;
   sort_order?: number;
 }
 
 export interface UpdateClassRequest {
-  name: string;
-
-  level?: string;
-
+  name?: string;
+  level?: ClassLevel;
   sort_order?: number;
 }
 
@@ -162,6 +174,15 @@ export interface UpdateSubjectRequest {
 
 export interface AssignSubjectsRequest {
   subject_ids: string[];
+}
+
+export interface DeleteResponse {
+  message: string;
+}
+
+export interface AssignSubjectsResponse {
+  message: string;
+  count: number;
 }
 
 export class AcademicSetupService {
@@ -223,8 +244,10 @@ export class AcademicSetupService {
     return response.data;
   }
 
-  static async deleteClass(classId: string): Promise<void> {
-    await api.delete(`/academic-setup/classes/${classId}`);
+  static async deleteClass(classId: string): Promise<DeleteResponse> {
+    const { data } = await api.delete(`/academic-setup/classes/${classId}`);
+
+    return data;
   }
 
   // ==========================================================
@@ -251,8 +274,10 @@ export class AcademicSetupService {
     return response.data;
   }
 
-  static async deleteSubject(subjectId: string): Promise<void> {
-    await api.delete(`/academic-setup/subjects/${subjectId}`);
+  static async deleteSubject(subjectId: string): Promise<DeleteResponse> {
+    const { data } = await api.delete(`/academic-setup/subjects/${subjectId}`);
+
+    return data;
   }
 
   // ==========================================================
@@ -262,12 +287,12 @@ export class AcademicSetupService {
   static async assignSubjects(
     classId: string,
     payload: AssignSubjectsRequest,
-  ): Promise<SchoolClass> {
-    const response = await api.put(
+  ): Promise<AssignSubjectsResponse> {
+    const { data } = await api.put(
       `/academic-setup/classes/${classId}/subjects`,
       payload,
     );
 
-    return response.data;
+    return data;
   }
 }

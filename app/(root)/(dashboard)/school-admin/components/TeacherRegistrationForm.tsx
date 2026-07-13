@@ -1,364 +1,207 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Search, Copy, KeyRound } from "lucide-react";
 
-import { SchoolAdminService } from "@/app/services/school-admin.service";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { RegistrationService } from "@/app/services/registration.service";
+import { StudentService } from "@/app/services/student.service";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-interface Teacher {
-  id: string;
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-  first_name?: string | null;
-  last_name?: string | null;
-
-  email: string;
-
-  qualification?: string | null;
-
-  username: string;
-  password: string;
-
-  is_active?: boolean;
-  profile_completed?: boolean;
-  created_at?: string;
-}
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
-  onSuccess: (username: string, password: string) => void;
+  onSuccess: (credentials: { username: string; password: string }) => void;
 };
 
-export default function TeachersPage({ onSuccess }: Props) {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
+type ClassItem = {
+  id: string;
+  name: string;
+  level?: string;
+};
 
-  const [editOpen, setEditOpen] = useState(false);
+export default function TeacherRegistrationForm({ onSuccess }: Props) {
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [loadingClasses, setLoadingClasses] = useState(true);
 
-  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [form, setForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    qualification: "",
+    specialization: "",
+    hire_date: "",
+    class_id: "",
+  });
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [qualification, setQualification] = useState("");
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await StudentService.getClasses();
 
-  async function loadTeachers() {
+        setClasses(res.classes || res || []);
+      } catch {
+        toast.error("Unable to load classes.");
+      } finally {
+        setLoadingClasses(false);
+      }
+    }
+
+    load();
+  }, []);
+
+  function update(key: string, value: string) {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  }
+
+  async function submit() {
     try {
       setLoading(true);
 
-      const response = await SchoolAdminService.getSchoolTeachers();
+      const res = await RegistrationService.registerTeacher(form);
 
-      setTeachers(Array.isArray(response?.teachers) ? response.teachers : []);
-    } catch (error) {
-      console.error(error);
+      toast.success("Teacher registered successfully.");
 
-      toast.error("Failed to load teachers");
+      onSuccess(res.credentials);
+
+      setForm({
+        first_name: "",
+        last_name: "",
+        email: "",
+        qualification: "",
+        specialization: "",
+        hire_date: "",
+        class_id: "",
+      });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || "Registration failed.");
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => {
-    void Promise.resolve().then(() => loadTeachers());
-  }, []);
-
-  const filteredTeachers = useMemo(() => {
-    const term = search.toLowerCase();
-
-    return teachers.filter((teacher) => {
-      const fullName = `${teacher.first_name ?? ""} ${
-        teacher.last_name ?? ""
-      }`.toLowerCase();
-
-      return (
-        fullName.includes(term) ||
-        teacher.email.toLowerCase().includes(term) ||
-        teacher.username.toLowerCase().includes(term)
-      );
-    });
-  }, [teachers, search]);
-
-  function openEdit(teacher: Teacher) {
-    setSelectedTeacher(teacher);
-
-    setFirstName(teacher.first_name ?? "");
-    setLastName(teacher.last_name ?? "");
-    setEmail(teacher.email ?? "");
-    setQualification(teacher.qualification ?? "");
-
-    setEditOpen(true);
-  }
-
-  async function saveTeacher() {
-    if (!selectedTeacher) return;
-
-    try {
-      await SchoolAdminService.updateTeacher(selectedTeacher.id, {
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        qualification: qualification || null,
-      });
-
-      toast.success("Teacher updated.");
-
-      await loadTeachers();
-
-      setEditOpen(false);
-      setSelectedTeacher(null);
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Failed to update teacher.");
-    }
-  }
-
-  async function copyCredentials(teacher: Teacher) {
-    await navigator.clipboard.writeText(
-      `Username: ${teacher.username}\nPassword: ${teacher.password}`,
-    );
-
-    toast.success("Credentials copied.");
-  }
-
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
-      <div>
-        <h1 className="text-3xl font-bold">Teachers</h1>
+    <Card>
+      <CardHeader>
+        <CardTitle>Register Teacher</CardTitle>
 
-        <p className="text-muted-foreground">
-          Manage teachers and access their login credentials.
-        </p>
-      </div>
+        <CardDescription>
+          Create a new teacher account. Login credentials will be generated
+          automatically.
+        </CardDescription>
+      </CardHeader>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Teacher Directory</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+      <CardContent className="space-y-6">
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>First Name</Label>
 
             <Input
-              className="pl-10"
-              placeholder="Search by name, email or username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={form.first_name}
+              onChange={(e) => update("first_name", e.target.value)}
             />
           </div>
 
-          {loading ? (
-            <div className="py-10 text-center">Loading teachers...</div>
-          ) : filteredTeachers.length === 0 ? (
-            <div className="py-10 text-center text-muted-foreground">
-              No teachers found.
-            </div>
-          ) : (
-            <div className="overflow-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="p-3 text-left">Name</th>
+          <div className="space-y-2">
+            <Label>Last Name</Label>
 
-                    <th className="p-3 text-left">Email</th>
+            <Input
+              value={form.last_name}
+              onChange={(e) => update("last_name", e.target.value)}
+            />
+          </div>
 
-                    <th className="p-3 text-left">Username</th>
+          <div className="space-y-2">
+            <Label>Email</Label>
 
-                    <th className="p-3 text-left">Password</th>
+            <Input
+              type="email"
+              value={form.email}
+              onChange={(e) => update("email", e.target.value)}
+            />
+          </div>
 
-                    <th className="p-3 text-left">Qualification</th>
+          <div className="space-y-2">
+            <Label>Qualification</Label>
 
-                    <th className="p-3 text-left">Status</th>
+            <Input
+              value={form.qualification}
+              onChange={(e) => update("qualification", e.target.value)}
+              placeholder="B.Sc Education"
+            />
+          </div>
 
-                    <th className="p-3 text-right">Actions</th>
-                  </tr>
-                </thead>
+          <div className="space-y-2">
+            <Label>Specialization</Label>
 
-                <tbody>
-                  {filteredTeachers.map((teacher) => {
-                    const fullName =
-                      `${teacher.first_name ?? ""} ${
-                        teacher.last_name ?? ""
-                      }`.trim() || "No Name";
+            <Input
+              value={form.specialization}
+              onChange={(e) => update("specialization", e.target.value)}
+              placeholder="Mathematics"
+            />
+          </div>
 
-                    return (
-                      <tr key={teacher.id} className="border-t">
-                        <td className="p-3 font-medium">{fullName}</td>
+          <div className="space-y-2">
+            <Label>Hire Date</Label>
 
-                        <td className="p-3">{teacher.email}</td>
+            <Input
+              type="date"
+              value={form.hire_date}
+              onChange={(e) => update("hire_date", e.target.value)}
+            />
+          </div>
 
-                        <td className="p-3 font-mono">{teacher.username}</td>
+          <div className="space-y-2">
+            <Label>Assigned Class</Label>
 
-                        <td className="p-3 font-mono">
-                          <div className="flex items-center gap-2">
-                            <KeyRound className="h-4 w-4 text-muted-foreground" />
-                            {teacher.password}
-                          </div>
-                        </td>
+            <Select
+              value={form.class_id}
+              onValueChange={(value) => update("class_id", value)}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={loadingClasses ? "Loading..." : "Select class"}
+                />
+              </SelectTrigger>
 
-                        <td className="p-3">{teacher.qualification || "-"}</td>
+              <SelectContent>
+                {classes.map((cls) => (
+                  <SelectItem key={cls.id} value={cls.id}>
+                    {cls.name}
+                    {cls.level ? ` (${cls.level})` : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-                        <td className="p-3">
-                          {teacher.is_active ? (
-                            <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">
-                              Active
-                            </span>
-                          ) : (
-                            <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">
-                              Inactive
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="p-3 text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => copyCredentials(teacher)}
-                            >
-                              <Copy className="mr-2 h-4 w-4" />
-                              Copy
-                            </Button>
-
-                            <Dialog
-                              open={
-                                editOpen && selectedTeacher?.id === teacher.id
-                              }
-                              onOpenChange={(open) => {
-                                setEditOpen(open);
-
-                                if (!open) {
-                                  setSelectedTeacher(null);
-                                }
-                              }}
-                            >
-                              <DialogTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => openEdit(teacher)}
-                                >
-                                  <Pencil className="mr-2 h-4 w-4" />
-                                  Edit
-                                </Button>
-                              </DialogTrigger>
-
-                              <DialogContent className="sm:max-w-lg">
-                                <DialogHeader>
-                                  <DialogTitle>Edit Teacher</DialogTitle>
-                                </DialogHeader>
-
-                                <div className="space-y-5">
-                                  <div className="grid gap-4 md:grid-cols-2">
-                                    <Input
-                                      placeholder="First Name"
-                                      value={firstName}
-                                      onChange={(e) =>
-                                        setFirstName(e.target.value)
-                                      }
-                                    />
-
-                                    <Input
-                                      placeholder="Last Name"
-                                      value={lastName}
-                                      onChange={(e) =>
-                                        setLastName(e.target.value)
-                                      }
-                                    />
-                                  </div>
-
-                                  <Input
-                                    placeholder="Email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                  />
-
-                                  <Input
-                                    placeholder="Qualification"
-                                    value={qualification}
-                                    onChange={(e) =>
-                                      setQualification(e.target.value)
-                                    }
-                                  />
-
-                                  <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
-                                    <h4 className="font-medium">
-                                      Login Credentials
-                                    </h4>
-
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">
-                                        Username
-                                      </p>
-
-                                      <p className="font-mono font-semibold">
-                                        {selectedTeacher?.username}
-                                      </p>
-                                    </div>
-
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">
-                                        Password
-                                      </p>
-
-                                      <p className="font-mono font-semibold">
-                                        {selectedTeacher?.password}
-                                      </p>
-                                    </div>
-
-                                    <Button
-                                      className="w-full"
-                                      variant="secondary"
-                                      onClick={() => {
-                                        if (selectedTeacher) {
-                                          copyCredentials(selectedTeacher);
-                                        }
-                                      }}
-                                    >
-                                      <Copy className="mr-2 h-4 w-4" />
-                                      Copy Login Credentials
-                                    </Button>
-                                  </div>
-
-                                  <Button
-                                    className="w-full"
-                                    onClick={saveTeacher}
-                                  >
-                                    Save Changes
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        <Button className="w-full" disabled={loading} onClick={submit}>
+          {loading ? "Creating Teacher..." : "Register Teacher"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
