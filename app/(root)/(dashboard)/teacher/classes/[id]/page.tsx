@@ -52,9 +52,9 @@ export default function TeacherClassDashboardPage() {
         teacherService.getSubjects(classId),
       ]);
 
-      setStudents(studentsResponse?.students ?? studentsResponse ?? []);
+      setStudents(studentsResponse ?? []);
 
-      setSubjects(subjectsResponse?.subjects ?? subjectsResponse ?? []);
+      setSubjects(subjectsResponse ?? []);
     } catch (error) {
       console.error(error);
 
