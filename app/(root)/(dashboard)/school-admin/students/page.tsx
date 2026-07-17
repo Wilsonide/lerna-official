@@ -5,7 +5,17 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { toast } from "sonner";
-import { Search, Pencil, Copy, KeyRound } from "lucide-react";
+
+import {
+  Search,
+  Pencil,
+  Copy,
+  KeyRound,
+  User,
+  GraduationCap,
+  School,
+  Mail,
+} from "lucide-react";
 
 import { SchoolAdminService } from "@/app/services/school-admin.service";
 
@@ -24,15 +34,17 @@ import { Input } from "@/components/ui/input";
 
 interface Student {
   id: string;
+
   first_name: string | null;
   last_name: string | null;
+
   email: string;
 
   username: string;
   password: string;
 
-  is_active?: boolean;
-  profile_completed?: boolean;
+  class_name?: string;
+
   created_at?: string;
 }
 
@@ -58,7 +70,7 @@ export default function StudentsPage() {
     } catch (error) {
       console.error(error);
 
-      toast.error("Failed to load students");
+      toast.error("Failed to load students.");
     } finally {
       setLoading(false);
     }
@@ -72,14 +84,14 @@ export default function StudentsPage() {
     const term = search.toLowerCase();
 
     return students.filter((student) => {
-      const fullName = `${student.first_name ?? ""} ${
-        student.last_name ?? ""
-      }`.toLowerCase();
+      const fullName =
+        `${student.first_name ?? ""} ${student.last_name ?? ""}`.toLowerCase();
 
       return (
         fullName.includes(term) ||
         student.email.toLowerCase().includes(term) ||
-        student.username.toLowerCase().includes(term)
+        student.username.toLowerCase().includes(term) ||
+        (student.class_name ?? "").toLowerCase().includes(term)
       );
     });
   }, [students, search]);
@@ -122,18 +134,71 @@ export default function StudentsPage() {
     toast.success("Credentials copied.");
   }
 
-  return (
-    <div className="mx-auto max-w-7xl space-y-8 p-8">
-      <div>
-        <h1 className="text-3xl font-bold">Students</h1>
-
-        <p className="text-muted-foreground">
-          Manage students and access their login credentials.
-        </p>
+  if (loading) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">Loading students...</p>
       </div>
+    );
+  }
 
-      <Card>
-        <CardHeader>
+  return (
+    <div className="mx-auto max-w-7xl space-y-8 p-6 lg:p-8">
+      {/* Summary Cards */}
+
+      <div className="grid gap-5 md:grid-cols-3">
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm text-muted-foreground">Students</p>
+
+              <p className="mt-2 text-3xl font-bold">{students.length}</p>
+            </div>
+
+            <div className="rounded-xl bg-blue-100 p-4">
+              <User className="h-7 w-7 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm text-muted-foreground">Assigned Classes</p>
+
+              <p className="mt-2 text-3xl font-bold">
+                {
+                  students.filter(
+                    (s) => s.class_name && s.class_name.trim() !== "",
+                  ).length
+                }
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-emerald-100 p-4">
+              <School className="h-7 w-7 text-emerald-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex items-center justify-between p-6">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Credentials Generated
+              </p>
+
+              <p className="mt-2 text-3xl font-bold">{students.length}</p>
+            </div>
+
+            <div className="rounded-xl bg-violet-100 p-4">
+              <KeyRound className="h-7 w-7 text-violet-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card className="shadow-sm">
+        <CardHeader className="border-b">
           <CardTitle>Student Directory</CardTitle>
         </CardHeader>
 
@@ -143,36 +208,32 @@ export default function StudentsPage() {
 
             <Input
               className="pl-10"
-              placeholder="Search by name, email or username..."
+              placeholder="Search student, class, email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          {loading ? (
-            <div className="py-10 text-center">Loading students...</div>
-          ) : filteredStudents.length === 0 ? (
-            <div className="py-10 text-center text-muted-foreground">
+          {filteredStudents.length === 0 ? (
+            <div className="py-12 text-center text-muted-foreground">
               No students found.
             </div>
           ) : (
-            <div className="overflow-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
+            <div className="overflow-x-auto rounded-xl border">
+              <table className="w-full">
+                <thead className="bg-muted/60">
                   <tr>
-                    <th className="p-3 text-left">Name</th>
+                    <th className="px-5 py-4 text-left">Student</th>
 
-                    <th className="p-3 text-left">Email</th>
+                    <th className="px-5 py-4 text-left">Email</th>
 
-                    <th className="p-3 text-left">Username</th>
+                    <th className="px-5 py-4 text-left">Class</th>
 
-                    <th className="p-3 text-left">Password</th>
+                    <th className="px-5 py-4 text-left">Username</th>
 
-                    <th className="p-3 text-left">Status</th>
+                    <th className="px-5 py-4 text-left">Account</th>
 
-                    <th className="p-3 text-left">Created</th>
-
-                    <th className="p-3 text-right">Actions</th>
+                    <th className="px-5 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
 
@@ -184,40 +245,78 @@ export default function StudentsPage() {
                       }`.trim() || "No Name";
 
                     return (
-                      <tr key={student.id} className="border-t">
-                        <td className="p-3 font-medium">{fullName}</td>
+                      <tr
+                        key={student.id}
+                        className="border-t transition-colors hover:bg-muted/30"
+                      >
+                        {/* Student */}
 
-                        <td className="p-3">{student.email}</td>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                              {student.first_name?.charAt(0)}
+                              {student.last_name?.charAt(0)}
+                            </div>
 
-                        <td className="p-3 font-mono">{student.username}</td>
+                            <div>
+                              <p className="font-semibold">{fullName}</p>
 
-                        <td className="p-3 font-mono">
-                          <div className="flex items-center gap-2">
-                            <KeyRound className="h-4 w-4 text-muted-foreground" />
-
-                            {student.password}
+                              <p className="text-xs text-muted-foreground">
+                                Student
+                              </p>
+                            </div>
                           </div>
                         </td>
 
-                        <td className="p-3">
-                          {student.is_active ? (
-                            <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-700">
-                              Active
+                        {/* Email */}
+
+                        <td className="px-5 py-4 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+
+                            {student.email}
+                          </div>
+                        </td>
+
+                        {/* Class */}
+
+                        <td className="px-5 py-4">
+                          {student.class_name ? (
+                            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                              {student.class_name}
                             </span>
                           ) : (
-                            <span className="rounded bg-red-100 px-2 py-1 text-xs text-red-700">
-                              Inactive
+                            <span className="text-muted-foreground">
+                              Not Assigned
                             </span>
                           )}
                         </td>
 
-                        <td className="p-3">
-                          {student.created_at
-                            ? new Date(student.created_at).toLocaleDateString()
-                            : "-"}
+                        {/* Username */}
+
+                        <td className="px-5 py-4">
+                          <div className="rounded-md bg-muted px-3 py-2 font-mono text-sm">
+                            {student.username}
+                          </div>
                         </td>
 
-                        <td className="p-3 text-right">
+                        {/* Account */}
+
+                        <td className="px-5 py-4">
+                          {student.username ? (
+                            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                              Credentials Generated
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                              Pending Credentials
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+
+                        <td className="px-5 py-4">
                           <div className="flex justify-end gap-2">
                             <Button
                               size="sm"
@@ -239,7 +338,6 @@ export default function StudentsPage() {
                                   Edit
                                 </Button>
                               </DialogTrigger>
-
                               <DialogContent className="sm:max-w-lg">
                                 <DialogHeader>
                                   <DialogTitle>Edit Student</DialogTitle>
@@ -285,34 +383,47 @@ export default function StudentsPage() {
                                     />
                                   </div>
 
-                                  <div className="rounded-lg border bg-muted/40 p-4 space-y-3">
-                                    <h4 className="font-medium">
+                                  <div className="rounded-xl border bg-muted/40 p-4">
+                                    <h4 className="mb-4 font-semibold">
                                       Login Credentials
                                     </h4>
 
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">
-                                        Username
-                                      </p>
+                                    <div className="space-y-3">
+                                      <div>
+                                        <p className="text-xs text-muted-foreground">
+                                          Username
+                                        </p>
 
-                                      <p className="font-mono font-semibold">
-                                        {selectedStudent?.username}
-                                      </p>
-                                    </div>
+                                        <p className="font-mono font-semibold">
+                                          {selectedStudent?.username}
+                                        </p>
+                                      </div>
 
-                                    <div>
-                                      <p className="text-xs text-muted-foreground">
-                                        Password
-                                      </p>
+                                      <div>
+                                        <p className="text-xs text-muted-foreground">
+                                          Password
+                                        </p>
 
-                                      <p className="font-mono font-semibold">
-                                        {selectedStudent?.password}
-                                      </p>
+                                        <p className="font-mono font-semibold">
+                                          {selectedStudent?.password}
+                                        </p>
+                                      </div>
+
+                                      <div>
+                                        <p className="text-xs text-muted-foreground">
+                                          Assigned Class
+                                        </p>
+
+                                        <p className="font-semibold">
+                                          {selectedStudent?.class_name ||
+                                            "Not Assigned"}
+                                        </p>
+                                      </div>
                                     </div>
 
                                     <Button
+                                      className="mt-5 w-full"
                                       variant="secondary"
-                                      className="w-full"
                                       onClick={() => {
                                         if (selectedStudent) {
                                           copyCredentials(selectedStudent);
@@ -320,7 +431,7 @@ export default function StudentsPage() {
                                       }}
                                     >
                                       <Copy className="mr-2 h-4 w-4" />
-                                      Copy Login Credentials
+                                      Copy Credentials
                                     </Button>
                                   </div>
 

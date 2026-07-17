@@ -1,15 +1,21 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import {
+  Loader2,
   GraduationCap,
   ClipboardCheck,
-  BookOpen,
-  Loader2,
-  Eye,
+  AlertTriangle,
   Pencil,
-  FilePlus2,
+  Eye,
+  Plus,
+  BookOpen,
+  Users,
+  CheckCircle2,
+  Clock3,
+  ShieldCheck,
+  RefreshCw,
 } from "lucide-react";
 
 import {
@@ -17,21 +23,30 @@ import {
   ResultStatusResponse,
 } from "@/app/services/teacher.service";
 
-type ClassItem = {
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+type DashboardClass = {
   id: string;
   name: string;
-};
-
-type DashboardClass = ClassItem & {
+  level?: string;
+  students_count?: number;
+  subjects_count?: number;
   result?: ResultStatusResponse;
 };
 
 export default function ResultsDashboardPage() {
-  const [classes, setClasses] = useState<DashboardClass[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [sessionId, setSessionId] = useState("");
-  const [termId, setTermId] = useState("");
+  const [classes, setClasses] = useState<DashboardClass[]>([]);
+
+  const [sessionName, setSessionName] = useState("");
+
+  const [termName, setTermName] = useState("");
+
+  // ==========================================================
+  // LOAD DASHBOARD
+  // ==========================================================
 
   async function loadDashboard() {
     try {
@@ -39,13 +54,12 @@ export default function ResultsDashboardPage() {
 
       const dashboard = await teacherService.getDashboard();
 
-      setSessionId(dashboard.active_session?.id ?? "");
-      setTermId(dashboard.active_term?.id ?? "");
+      setSessionName(dashboard.active_session?.name ?? "No Active Session");
 
-      const assignedClasses: ClassItem[] = dashboard.classes ?? [];
+      setTermName(dashboard.active_term?.name ?? "No Active Term");
 
       const enriched = await Promise.all(
-        assignedClasses.map(async (cls) => {
+        dashboard.classes.map(async (cls: DashboardClass) => {
           try {
             const result = await teacherService.getResultStatus({
               classId: cls.id,
@@ -73,172 +87,356 @@ export default function ResultsDashboardPage() {
   }
 
   useEffect(() => {
-    void Promise.resolve().then(loadDashboard);
+    void Promise.resolve().then(() => loadDashboard());
   }, []);
+
+  // ==========================================================
+  // DASHBOARD STATS
+  // ==========================================================
+
+  const stats = useMemo(() => {
+    return {
+      total: classes.length,
+
+      submitted: classes.filter((cls) => cls.result?.status === "SUBMITTED")
+        .length,
+
+      approved: classes.filter(
+        (cls) =>
+          cls.result?.status === "APPROVED" ||
+          cls.result?.status === "PUBLISHED",
+      ).length,
+
+      rejected: classes.filter((cls) => cls.result?.status === "REJECTED")
+        .length,
+
+      pending: classes.filter(
+        (cls) => !cls.result?.exists || cls.result?.status === "DRAFT",
+      ).length,
+    };
+  }, [classes]);
+
+  // ==========================================================
+  // STATUS BADGE
+  // ==========================================================
 
   function badge(status?: string) {
     switch (status) {
-      case "APPROVED":
+      case "DRAFT":
         return (
-          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-            Approved
+          <span className="inline-flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-700">
+            <Clock3 className="h-3.5 w-3.5" />
+            Draft
           </span>
         );
 
       case "SUBMITTED":
         return (
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+          <span className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+            <ClipboardCheck className="h-3.5 w-3.5" />
             Submitted
           </span>
         );
 
-      case "REJECTED":
+      case "APPROVED":
         return (
-          <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-            Rejected
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Approved
           </span>
         );
 
       case "PUBLISHED":
         return (
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+          <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+            <CheckCircle2 className="h-3.5 w-3.5" />
             Published
           </span>
         );
 
-      case "DRAFT":
+      case "REJECTED":
         return (
-          <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-            Draft
+          <span className="inline-flex items-center gap-2 rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            Rejected
           </span>
         );
 
       default:
         return (
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-            No Submission
+          <span className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+            Not Started
           </span>
         );
     }
   }
 
-  function actionButton(item: DashboardClass) {
+  // ==========================================================
+  // ACTION BUTTON
+  // ==========================================================
+
+  function action(item: DashboardClass) {
     const status = item.result?.status;
 
     if (!item.result?.exists || status === "DRAFT") {
       return (
-        <Link
-          href={`/teacher/results/create/${item.id}`}
-          className="inline-flex items-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-        >
-          <FilePlus2 className="mr-2 h-4 w-4" />
-          Enter Results
+        <Link href={`/teacher/results/${item.id}`}>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Start Results
+          </Button>
         </Link>
       );
     }
 
     if (status === "REJECTED") {
       return (
-        <Link
-          href={`/teacher/results/edit/${item.id}?sessionId=${sessionId}&termId=${termId}`}
-          className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700"
-        >
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit Batch
+        <Link href={`/teacher/results/${item.id}`}>
+          <Button variant="destructive">
+            <Pencil className="mr-2 h-4 w-4" />
+            Review & Edit
+          </Button>
         </Link>
       );
     }
 
     return (
-      <Link
-        href={`/teacher/results/${item.id}?sessionId=${sessionId}&termId=${termId}`}
-        className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-      >
-        <Eye className="mr-2 h-4 w-4" />
-        View Results
+      <Link href={`/teacher/results/${item.id}`}>
+        <Button variant="secondary">
+          <Eye className="mr-2 h-4 w-4" />
+          View Results
+        </Button>
       </Link>
     );
   }
 
+  // ==========================================================
+  // LOADING
+  // ==========================================================
+
   if (loading) {
     return (
-      <div className="flex h-72 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex h-[70vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+
+          <div className="text-center">
+            <p className="font-semibold">Loading Results Dashboard...</p>
+
+            <p className="text-sm text-muted-foreground">
+              Fetching your assigned classes.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
-
   return (
-    <div className="space-y-8 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">Results Management</h1>
+    <div className="mx-auto max-w-7xl space-y-6 p-6">
+      {/* ==========================================================
+          PAGE HEADER
+      ========================================================== */}
 
-        <p className="mt-2 text-muted-foreground">
-          Manage class result submissions and approval workflow.
-        </p>
-      </div>
+      <div className="rounded-2xl border bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Results Management
+            </h1>
 
-      <div className="grid gap-5 md:grid-cols-3">
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <GraduationCap className="h-6 w-6 text-blue-600" />
-            <span className="font-medium">Assigned Classes</span>
+            <p className="mt-2 text-muted-foreground">
+              Create, update and monitor result submissions for all your
+              assigned classes.
+            </p>
           </div>
 
-          <h2 className="mt-5 text-4xl font-bold">{classes.length}</h2>
-        </div>
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+            <div className="rounded-xl border bg-muted/40 px-5 py-3">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Active Session
+              </p>
 
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <ClipboardCheck className="h-6 w-6 text-green-600" />
-            <span className="font-medium">Academic Session</span>
+              <p className="font-semibold">
+                {sessionName} • {termName}
+              </p>
+            </div>
+
+            <Button variant="outline" onClick={loadDashboard} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
           </div>
-
-          <p className="mt-5 text-sm text-muted-foreground">
-            Active Session & Term loaded automatically.
-          </p>
-        </div>
-
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3">
-            <BookOpen className="h-6 w-6 text-purple-600" />
-            <span className="font-medium">Workflow</span>
-          </div>
-
-          <p className="mt-5 text-sm text-muted-foreground">
-            Enter → Submit → Approve → Publish → Reject → Edit → Resubmit
-          </p>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-        <div className="border-b bg-gray-50 px-6 py-4">
-          <h2 className="text-lg font-semibold">Assigned Classes</h2>
+      {/* ==========================================================
+          STATISTICS
+      ========================================================== */}
+
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard
+          title="Assigned Classes"
+          value={stats.total}
+          icon={<GraduationCap className="h-7 w-7 text-primary" />}
+          border="border-l-primary"
+        />
+
+        <StatCard
+          title="Pending Results"
+          value={stats.pending}
+          icon={<BookOpen className="h-7 w-7 text-yellow-600" />}
+          border="border-l-yellow-500"
+        />
+
+        <StatCard
+          title="Submitted"
+          value={stats.submitted}
+          icon={<ClipboardCheck className="h-7 w-7 text-blue-600" />}
+          border="border-l-blue-500"
+        />
+
+        <StatCard
+          title="Approved"
+          value={stats.approved}
+          icon={<CheckCircle2 className="h-7 w-7 text-green-600" />}
+          border="border-l-green-500"
+        />
+
+        <StatCard
+          title="Rejected"
+          value={stats.rejected}
+          icon={<AlertTriangle className="h-7 w-7 text-red-600" />}
+          border="border-l-red-500"
+        />
+      </div>
+
+      {/* ==========================================================
+          CLASS LIST
+      ========================================================== */}
+
+      <div className="rounded-2xl border bg-white shadow-sm">
+        <div className="border-b px-6 py-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Assigned Classes</h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Select a class to enter, edit or review student results.
+              </p>
+            </div>
+
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+              {classes.length} Classes
+            </span>
+          </div>
         </div>
 
-        <div className="divide-y">
-          {classes.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col gap-5 p-6 md:flex-row md:items-center md:justify-between"
-            >
-              <div>
-                <h3 className="text-lg font-semibold">{item.name}</h3>
+        <div className="grid gap-5 p-6 md:grid-cols-2 xl:grid-cols-3">
+          {classes.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+              <GraduationCap className="mb-5 h-14 w-14 text-muted-foreground" />
 
-                <div className="mt-3">{badge(item.result?.status)}</div>
-              </div>
+              <h3 className="text-xl font-semibold">No Assigned Classes</h3>
 
-              <div>{actionButton(item)}</div>
+              <p className="mt-2 max-w-md text-muted-foreground">
+                You currently don&apos;t have any assigned classes. Once classes
+                are assigned to you, they&apos;ll appear here.
+              </p>
             </div>
-          ))}
+          ) : (
+            classes.map((cls) => (
+              <Card
+                key={cls.id}
+                className="transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <CardContent className="space-y-6 p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold">{cls.name}</h3>
 
-          {classes.length === 0 && (
-            <div className="py-16 text-center text-muted-foreground">
-              No assigned classes found.
-            </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {cls.level ?? "Class"}
+                      </p>
+                    </div>
+
+                    {badge(cls.result?.status)}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-xl bg-muted/40 p-4">
+                      <div className="flex items-center gap-3">
+                        <Users className="h-6 w-6 text-primary" />
+
+                        <div>
+                          <p className="text-xs uppercase text-muted-foreground">
+                            Students
+                          </p>
+
+                          <p className="text-xl font-bold">
+                            {cls.students_count ?? 0}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl bg-muted/40 p-4">
+                      <div className="flex items-center gap-3">
+                        <BookOpen className="h-6 w-6 text-primary" />
+
+                        <div>
+                          <p className="text-xs uppercase text-muted-foreground">
+                            Subjects
+                          </p>
+
+                          <p className="text-xl font-bold">
+                            {cls.subjects_count ?? 0}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">{action(cls)}</div>
+                </CardContent>
+              </Card>
+            ))
           )}
         </div>
       </div>
     </div>
+  );
+}
+
+/* ==========================================================
+   STAT CARD
+========================================================== */
+
+function StatCard({
+  icon,
+  title,
+  value,
+  border,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: number;
+  border: string;
+}) {
+  return (
+    <Card
+      className={`border-l-4 ${border} transition-all duration-200 hover:shadow-md`}
+    >
+      <CardContent className="flex items-center justify-between p-6">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+
+          <h2 className="mt-2 text-3xl font-bold tracking-tight">{value}</h2>
+        </div>
+
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted">
+          {icon}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

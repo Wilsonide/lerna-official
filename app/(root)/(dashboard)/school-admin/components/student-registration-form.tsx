@@ -37,6 +37,7 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
   const [classes, setClasses] = useState<ClassItem[]>([]);
 
   const [loadingClasses, setLoadingClasses] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState("");
 
   const [form, setForm] = useState({
     first_name: "",
@@ -45,7 +46,7 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
     gender: "",
     date_of_birth: "",
     admission_date: "",
-    class_id: "",
+    class_name: "",
   });
 
   function update(key: string, value: any) {
@@ -88,8 +89,9 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
         gender: "",
         date_of_birth: "",
         admission_date: "",
-        class_id: "",
+        class_name: "",
       });
+      setSelectedClassId("");
     } catch (err: any) {
       toast.error(err?.response?.data?.detail ?? "Registration failed.");
     } finally {
@@ -170,9 +172,14 @@ export default function StudentRegistrationForm({ onSuccess }: Props) {
             <Label>Class</Label>
 
             <Select
-              value={form.class_id}
-              disabled={loadingClasses}
-              onValueChange={(v) => update("class_id", v)}
+              value={selectedClassId}
+              onValueChange={(value) => {
+                setSelectedClassId(value);
+
+                const selected = classes.find((c) => c.id === value);
+
+                update("class_name", selected?.name ?? "");
+              }}
             >
               <SelectTrigger>
                 <SelectValue

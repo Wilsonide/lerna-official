@@ -8,7 +8,7 @@ export interface StudentRegistration {
   gender: string;
   date_of_birth: string;
   admission_date: string;
-  class_id: string;
+  class_name: string;
 }
 
 export interface TeacherRegistration {
@@ -18,7 +18,7 @@ export interface TeacherRegistration {
   qualification: string;
   specialization: string;
   hire_date: string;
-  class_id: string;
+  class_name: string;
 }
 
 export interface ParentRegistration {

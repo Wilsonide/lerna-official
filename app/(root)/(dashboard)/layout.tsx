@@ -1,6 +1,7 @@
 import Footer from "@/components/layout/footer";
 import Navbar from "@/components/layout/navbar";
 import Sidebar from "@/components/dashboard/sidebar";
+import { ClassProvider } from "@/components/sidebar/ClassContext";
 
 export default function PublicLayout({
   children,
@@ -13,10 +14,13 @@ export default function PublicLayout({
 
       {/* MAIN AREA */}
       <div className="flex flex-1 pt-20">
-        <Sidebar />
-        <main className="flex-1 min-w-0 transition-all duration-300">
-          {children}
-        </main>
+        <ClassProvider>
+          <Sidebar />
+
+          <main className="flex-1 min-w-0 transition-all duration-300">
+            {children}
+          </main>
+        </ClassProvider>
       </div>
 
       <Footer />

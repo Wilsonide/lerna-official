@@ -464,17 +464,10 @@ export const SchoolAdminService = {
     return data;
   },
 
-  getClassAttendance: async (
-    classId: string,
-    sessionId: string,
-    termId: string,
-    attendanceDate: string,
-  ) => {
+  getClassAttendance: async (classId: string, attendanceDate: string) => {
     const { data } = await api.get("/school-admin/attendance/class", {
       params: {
         class_id: classId,
-        session_id: sessionId,
-        term_id: termId,
         attendance_date: attendanceDate,
       },
     });

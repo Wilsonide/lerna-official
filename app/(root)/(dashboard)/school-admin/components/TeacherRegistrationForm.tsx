@@ -42,6 +42,7 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
   const [loadingClasses, setLoadingClasses] = useState(true);
 
   const [loading, setLoading] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState("");
 
   const [form, setForm] = useState({
     first_name: "",
@@ -50,7 +51,7 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
     qualification: "",
     specialization: "",
     hire_date: "",
-    class_id: "",
+    class_name: "",
   });
 
   useEffect(() => {
@@ -93,9 +94,12 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
         qualification: "",
         specialization: "",
         hire_date: "",
-        class_id: "",
+        class_name: "",
       });
+
+      setSelectedClassId("");
     } catch (err: any) {
+      console.log(err?.response?.data);
       toast.error(err?.response?.data?.detail || "Registration failed.");
     } finally {
       setLoading(false);
@@ -177,8 +181,14 @@ export default function TeacherRegistrationForm({ onSuccess }: Props) {
             <Label>Assigned Class</Label>
 
             <Select
-              value={form.class_id}
-              onValueChange={(value) => update("class_id", value)}
+              value={selectedClassId}
+              onValueChange={(value) => {
+                setSelectedClassId(value);
+
+                const selected = classes.find((c) => c.id === value);
+
+                update("class_name", selected?.name ?? "");
+              }}
             >
               <SelectTrigger>
                 <SelectValue

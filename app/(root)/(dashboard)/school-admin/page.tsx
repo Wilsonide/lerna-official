@@ -34,6 +34,7 @@ export default function SchoolAdminDashboardPage() {
         const data = await SchoolAdminService.getDashboard();
 
         setDashboard(data);
+        console.log(data);
       } catch (error) {
         console.error(error);
       } finally {

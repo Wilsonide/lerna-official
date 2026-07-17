@@ -18,6 +18,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  BookOpen,
+  ClipboardCheck,
+  FileCheck2,
+  GraduationCap,
+} from "lucide-react";
 
 interface TeacherClass {
   id: string;
@@ -114,24 +120,39 @@ export default function TeacherDashboardPage() {
 
   return (
     <div className="space-y-6 p-6 md:p-8">
-      <DashboardHeader title={`Welcome, ${dashboard.teacher_name}`} />
+      <DashboardHeader
+        title={`Welcome, ${dashboard.teacher_name}`}
+        subtitle="Manage your classes, attendance, lesson notes and examination results."
+        badge={`${dashboard.active_session.name} • ${dashboard.active_term.name}`}
+      />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Assigned Classes" value={dashboard.assigned_classes} />
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Assigned Classes"
+          value={dashboard.assigned_classes}
+          icon={GraduationCap}
+          description="Classes under your care"
+        />
 
         <StatCard
           title="Assigned Subjects"
           value={dashboard.assigned_subjects}
+          icon={BookOpen}
+          description="Subjects currently assigned"
         />
 
         <StatCard
-          title="Attendance Submitted"
+          title="Attendance"
           value={dashboard.attendance_submissions}
+          icon={ClipboardCheck}
+          description="Attendance submissions"
         />
 
         <StatCard
-          title="Results Submitted"
+          title="Results"
           value={dashboard.results_submitted}
+          icon={FileCheck2}
+          description="Result batches submitted"
         />
       </div>
 
