@@ -18,18 +18,14 @@ import { SubjectCard } from "./SubjectCard";
 import { ClassUI, SubjectUI } from "./types";
 
 export type SubjectCardItem = SubjectUI;
-
 export type AcademicClass = ClassUI;
 
 interface ClassAccordionProps {
   classes: AcademicClass[];
-
   saving?: boolean;
 
   onEditClass: (schoolClass: AcademicClass) => void;
-
   onDeleteClass: (schoolClass: AcademicClass) => void;
-
   onAddSubject: (schoolClass: AcademicClass) => void;
 
   onEditSubject: (schoolClass: AcademicClass, subject: SubjectCardItem) => void;
@@ -43,20 +39,13 @@ interface ClassAccordionProps {
 export function ClassAccordion({
   classes,
   saving,
-
   onEditClass,
-
   onDeleteClass,
-
   onAddSubject,
-
   onEditSubject,
-
   onDeleteSubject,
 }: ClassAccordionProps) {
-  if (!classes.length) {
-    return null;
-  }
+  if (!classes.length) return null;
 
   return (
     <Accordion type="multiple" className="space-y-4">
@@ -64,13 +53,16 @@ export function ClassAccordion({
         <AccordionItem
           key={schoolClass.id}
           value={schoolClass.id}
-          className="rounded-xl border"
+          className="overflow-hidden rounded-2xl border bg-white shadow-sm"
         >
-          <AccordionTrigger className="px-5">
-            <div className="flex w-full items-center justify-between pr-4">
-              <div className="space-y-2 text-left">
-                <div className="flex items-center gap-3">
-                  <h3 className="font-semibold">{schoolClass.name}</h3>
+          <AccordionTrigger className="px-4 py-5 sm:px-6">
+            <div className="flex w-full flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              {/* Left */}
+              <div className="min-w-0 flex-1 text-left">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="truncate text-lg font-semibold">
+                    {schoolClass.name}
+                  </h3>
 
                   <Badge>{formatLevel(schoolClass.level)}</Badge>
 
@@ -79,23 +71,42 @@ export function ClassAccordion({
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <BookOpen className="h-4 w-4" />
 
-                  {schoolClass.subjects.length}
-                  {" Subjects"}
+                  <span>
+                    {schoolClass.subjects.length} Subject
+                    {schoolClass.subjects.length !== 1 && "s"}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+              {/* Right */}
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex flex-wrap items-center gap-2"
+              >
+                {/* Desktop */}
                 <Button
                   size="sm"
                   variant="outline"
                   disabled={saving}
                   onClick={() => onAddSubject(schoolClass)}
+                  className="hidden sm:flex"
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Subject
+                  Add Subject
+                </Button>
+
+                {/* Mobile */}
+                <Button
+                  size="icon"
+                  variant="outline"
+                  disabled={saving}
+                  onClick={() => onAddSubject(schoolClass)}
+                  className="sm:hidden"
+                >
+                  <Plus className="h-4 w-4" />
                 </Button>
 
                 <Button
@@ -119,18 +130,24 @@ export function ClassAccordion({
             </div>
           </AccordionTrigger>
 
-          <AccordionContent>
-            <div className="grid gap-4 pt-5 md:grid-cols-2 xl:grid-cols-3">
-              {schoolClass.subjects.map((subject) => (
-                <SubjectCard
-                  key={subject.id}
-                  subject={subject}
-                  saving={saving}
-                  onEdit={() => onEditSubject(schoolClass, subject)}
-                  onDelete={() => onDeleteSubject(schoolClass, subject)}
-                />
-              ))}
-            </div>
+          <AccordionContent className="px-4 pb-5 sm:px-6">
+            {schoolClass.subjects.length === 0 ? (
+              <div className="rounded-lg border border-dashed py-10 text-center text-sm text-muted-foreground">
+                No subjects have been added to this class.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {schoolClass.subjects.map((subject) => (
+                  <SubjectCard
+                    key={subject.id}
+                    subject={subject}
+                    saving={saving}
+                    onEdit={() => onEditSubject(schoolClass, subject)}
+                    onDelete={() => onDeleteSubject(schoolClass, subject)}
+                  />
+                ))}
+              </div>
+            )}
           </AccordionContent>
         </AccordionItem>
       ))}
